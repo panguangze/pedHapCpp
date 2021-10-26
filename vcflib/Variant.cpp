@@ -1513,18 +1513,18 @@ VariantFieldType Variant::infoType(const string& key) {
             return results.top().state;
         } else {
             cerr << "error, non-boolean value left on stack" << endl;
-            //cerr << results.top().value << endl;
+            //cerr << calls.top().value << endl;
             exit(1);
         }
     } else if (results.size() > 1) {
-        cerr << "more than one value left on results stack!" << endl;
+        cerr << "more than one value left on calls stack!" << endl;
         while (!results.empty()) {
             cerr << results.top().value << endl;
             results.pop();
         }
         exit(1);
     } else {
-        cerr << "results stack empty" << endl;
+        cerr << "calls stack empty" << endl;
         exit(1);
     }
 }

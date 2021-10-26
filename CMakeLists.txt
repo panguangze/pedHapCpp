@@ -9,7 +9,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXX_FLAGS} -O0 -Wall -ggdb -fkeep-inline-functio
 set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 ")
 aux_source_directory(./src PED_HAP_SRC)
 aux_source_directory(./vcflib VCF_LIB)
-add_executable(pedHap main.cpp ${PED_HAP_SRC} ${VCF_LIB})
+add_executable(pedHap main.cpp ${PED_HAP_SRC} ${VCF_LIB} src/trioPhaser.cpp src/trioPhaser.h src/phaseInfo.cpp src/phaseInfo.h)
 
-target_link_libraries(pedHap -lbz2 -lz -lhts /home/caronkey/share_disk/linux/docs/cityu/vcflib/build/libvcflib.a)
+target_link_libraries(pedHap -lbz2 -lz -lhts)
 install(TARGETS pedHap DESTINATION bin)
