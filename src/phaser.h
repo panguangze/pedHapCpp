@@ -19,6 +19,7 @@ class Phaser
 public:
     std::unordered_map<std::string, int>* sample_to_idx;
     uint sample_count;
+    ChromoPhaser* chromoPhaser;
     explicit Phaser(const std::string & fnvcf, const std::string & fnout);
     ~Phaser();
     void phasing();
@@ -29,7 +30,8 @@ private:
     VCFReader *frvcf;
     VCFWriter *fwvcf;
     int coverage;
-    void phasing_by_chrom(uint var_count, ChromoPhaser *chromo_phaser, std::vector<std::string>&);
+    void phasing_with_hete(std::string& s1, std::string& s2, int side, float t1, float t2);
+    void phasing_by_chrom(std::vector<std::string>&);
     int load_contig_records(ChromoPhaser *chromo_phaser);
     int load_contig_blocks(ChromoPhaser *chromo_phaser);
 };

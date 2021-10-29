@@ -102,7 +102,7 @@ void ChromoPhaser::add_result(std::shared_ptr<VcfRecord> result) {
 
 void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side) {
 //    auto idx2_phase_block = this->phased_blocks_info[idx2];
-    std::unordered_map<uint, pInfo*> reads;
+    std::unordered_map<uint, PInfo*> reads;
     for(int i = 0; i < this->results_for_variant.size(); i++) {
         auto result = results_for_variant[i];
         Call* s1_call = result->calls[idx1];
@@ -113,7 +113,7 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side) {
             s1_call->allele2 != s2_call->allele1 && s1_call->allele2 != s2_call->allele2)
             continue;
         if(reads.find(s2_call->ps) == reads.end()) {
-            auto read = new pInfo(s2_call->ps);
+            auto read = new PInfo(s2_call->ps);
             reads[s2_call->ps] = read;
         }
 
@@ -131,7 +131,7 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side) {
             s1_call->allele1 = s2_call->allele1;
             s2_call->allele2 = s2_call->allele2;
         }
-        auto hete_reads = new PhaseInfos();
+        auto hete_reads = new InfoSet();
         for(auto it: reads) {
             hete_reads.add_read(it.second)
         }

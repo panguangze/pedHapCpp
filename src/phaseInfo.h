@@ -6,38 +6,54 @@
 #define PEDHAP_PHASEINFO_H
 #include <vector>
 #include <unordered_map>
+#include <algorithm>
 #include "results.h"
-class pInfo{
+class PInfo{
 public:
     int ps;
     std::unordered_map<int,int> covered_blocks;
     std::vector<int> blocks;
-    std::vector<int> block_reverses;
+    std::vector<bool> block_reverses;
     std::vector<int> uncertain_blocks;
-    std::unordered_map<int, std::unordered_map<int ,int>* > support_situationl;
-
-    explicit pInfo(int ps);
+    std::unordered_map<int, std::vector<int>*> side0_support;
+    std::unordered_map<int, std::vector<int>*> side1_support;
+    explicit PInfo(int ps);
     void set_covered_call(int ps, int side, int pos);
+    void init_blocks(std::vector<int>& ensure_blocks);
 };
 
-class PhaseInfos {
-    int *rank, *parent, n;
+class InfoSet {
+public:
+    std::vector<int> rank;
+    std::unordered_map<int, int> parent;
+    std::unordered_map<int, bool> blocks_reverse_info;
+    std::vector<int> uncertain_blocks;
+    std::vector<int> confilict_poses;
 public:
     // Constructor to create and
     // initialize sets of n items
-    PhaseInfos(int n)
-    {
-        rank = new int[n];
-        parent = new int[n];
-        this->n = n;
-        makeSet();
-    }
+    InfoSet() = default;
 
-    // Creates n single item sets
-    void makeSet()
-    {
-        for (int i = 0; i < n; i++) {
-            parent[i] = i;
+    void add_read(PInfo* pinfo, std::vector<int>& ensure_blocks){
+        pinfo->init_blocks(ensure_blocks);
+        auto first_block = pinfo->blocks[0];
+        auto first_reverse = ensure_blocks[0];
+//        if first block found and conflict exists.
+        if(this->blocks_reverse_info.find(first_block) != blocks_reverse_info.end()
+                    && first_reverse != this->blocks_reverse_info[first_block]) {
+            for(int i = 0; i < ensure_blocks.size(); i++) {
+                pinfo->block_reverses[i] = !pinfo->block_reverses[i];
+            }
+        }
+
+        for(int i = 0; i < pinfo->blocks.size(); i++) {
+            auto b_id = pinfo->blocks[i];
+            auto r = pinfo->block_reverses[i];
+            if (std::find(parent.begin(), parent.end(), b_id) != parent.end()) {
+                this->parent[b_id] = b_id;
+            }
+            this->blocks_reverse_info.emplace(b_id, r);
+            Union(b_id, first_block);
         }
     }
 

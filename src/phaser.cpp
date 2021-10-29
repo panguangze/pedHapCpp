@@ -117,18 +117,23 @@ void Phaser::phasing()
             break;
         auto nsmp = bcf_hdr_nsamples(this->frvcf->header);
         ChromoPhaser *chromo_phaser = new ChromoPhaser(rid, frvcf->contigs[rid], nsmp);
+        this->chromoPhaser = chromo_phaser;
         std::string mess = "phasing haplotype for " + std::string(frvcf->contigs[rid]);
         logging(std::cerr, mess);
         load_contig_blocks(chromo_phaser);
 
-        phasing_by_chrom(chromo_phaser->variant_count, chromo_phaser, );
+        phasing_by_chrom();
         fwvcf->write_nxt_contigs(frvcf->contigs[rid].data(), chromo_phaser, *frvcf);
         delete chromo_phaser;
     }
 }
 
+void Phaser::phasing_with_hete(std::string& s1, std::string& s2, int side, float t1, float t2){
+    
+}
 
-void Phaser::phasing_by_chrom(uint var_count, ChromoPhaser *chromo_phaser, std::vector<std::string>& trios)
+
+void Phaser::phasing_by_chrom(std::vector<std::string>& trios)
 {
 //    while (chromo_phaser->phased->rest_blk_count > 0)
 //    {
@@ -148,15 +153,15 @@ void Phaser::phasing_by_chrom(uint var_count, ChromoPhaser *chromo_phaser, std::
     int s_idx = (*sample_to_idx)[trios[0]];
     int f_idx = (*sample_to_idx)[trios[1]];
     int m_idx = (*sample_to_idx)[trios[2]];
-
-    auto s_blocks = chromo_phaser->phased_blocks_info[s_idx];
-    auto f_blocks = chromo_phaser->phased_blocks_info[f_idx];
-    auto m_blocks = chromo_phaser->phased_blocks_info[m_idx];
-
-    for(auto it : *s_blocks) {
-        auto s_block_start = it.second->start_variant_idx;
-        auto e_block_start = it.second->end_variant_idx;
-
-    }
+//
+//    auto s_blocks = chromo_phaser->phased_blocks_info[s_idx];
+//    auto f_blocks = chromo_phaser->phased_blocks_info[f_idx];
+//    auto m_blocks = chromo_phaser->phased_blocks_info[m_idx];
+//
+//    for(auto it : *s_blocks) {
+//        auto s_block_start = it.second->start_variant_idx;
+//        auto e_block_start = it.second->end_variant_idx;
+//
+//    }
 
 }
