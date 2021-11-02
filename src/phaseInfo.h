@@ -8,18 +8,23 @@
 #include <unordered_map>
 #include <algorithm>
 #include "results.h"
+extern float T1;
+extern float T2;
+extern int P_ENSURE_BLOCK;
+extern int P_ENSURE_SIDE;
 class PInfo{
 public:
-    int ps;
-    std::unordered_map<int,int> covered_blocks;
-    std::vector<int> blocks;
-    std::vector<bool> block_reverses;
+//    std::unordered_map<int,int> covered_blocks;
+    std::unordered_map<int, int> blocks; //b_id : confilict
+    std::unordered_map<int,bool> block_reverses;
     std::vector<int> uncertain_blocks;
     std::unordered_map<int, std::vector<int>*> side0_support;
     std::unordered_map<int, std::vector<int>*> side1_support;
-    explicit PInfo(int ps);
+    int infoId;
+    int firstBlock;
+    explicit PInfo(int infoId);
     void set_covered_call(int ps, int side, int pos);
-    void init_blocks(std::vector<int>& ensure_blocks);
+    void init_blocks();
 };
 
 class InfoSet {
@@ -34,22 +39,28 @@ public:
     // initialize sets of n items
     InfoSet() = default;
 
-    void add_read(PInfo* pinfo, std::vector<int>& ensure_blocks){
-        pinfo->init_blocks(ensure_blocks);
-        auto first_block = pinfo->blocks[0];
-        auto first_reverse = ensure_blocks[0];
+    bool n_reverse_info(int block_id) {
+        if(blocks_reverse_info.find(block_id) == blocks_reverse_info.end()) return false;
+        return blocks_reverse_info[block_id];
+    }
+
+    void add_read(PInfo* pinfo){
+        pinfo->init_blocks();
+//        ensure block is better
+        auto first_block = pinfo->blocks[pinfo->firstBlock];
+        auto first_reverse = pinfo->block_reverses[pinfo->firstBlock];
 //        if first block found and conflict exists.
         if(this->blocks_reverse_info.find(first_block) != blocks_reverse_info.end()
                     && first_reverse != this->blocks_reverse_info[first_block]) {
-            for(int i = 0; i < ensure_blocks.size(); i++) {
+            for(int i = 0; i < pinfo->blocks.size(); i++) {
                 pinfo->block_reverses[i] = !pinfo->block_reverses[i];
             }
         }
 
-        for(int i = 0; i < pinfo->blocks.size(); i++) {
-            auto b_id = pinfo->blocks[i];
-            auto r = pinfo->block_reverses[i];
-            if (std::find(parent.begin(), parent.end(), b_id) != parent.end()) {
+        for(auto blk_id : pinfo->blocks) {
+            auto b_id = blk_id.first;
+            auto r = pinfo->block_reverses[b_id];
+            if (parent.find(b_id) != parent.end()) {
                 this->parent[b_id] = b_id;
             }
             this->blocks_reverse_info.emplace(b_id, r);
@@ -62,6 +73,7 @@ public:
     {
         // Finds the representative of the set
         // that x is an element of
+        if(parent.find(x) == parent.end()) return -1;
         if (parent[x] != x) {
 
             // if x is not the parent of itself

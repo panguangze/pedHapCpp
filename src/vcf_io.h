@@ -115,7 +115,7 @@ public:
         int max_ploidy = ngt / nsmpl;
         for (i = 0; i < nsmpl; i++) {
             int *ptr = gt_arr + i * max_ploidy;
-            int *p_ptr = gt_arr + i;
+            int *p_ptr = ps_arr + i;
             auto call = new Call();
             call->allele1 = bcf_gt_allele(ptr[0]);
             call->allele2 = bcf_gt_allele(ptr[1]);

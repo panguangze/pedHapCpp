@@ -120,6 +120,8 @@ public:
     void setSampleCount(int count);
     void add_result(std::shared_ptr<VcfRecord> result);
     void phase_with_hete(int idx1, int idx2, int side);
+    void phase_with_homo(int idx1, int idx2, int side);
+    void extend(int idx, InfoSet& infoSet);
 //    inline uint get_var_pos(uint idx) { return results_for_variant[idx]->get_pos(); }
 
 

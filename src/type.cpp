@@ -6,6 +6,7 @@
 #include <cmath>
 #include <set>
 #include <algorithm>
+#define SPECIFIC_HOMO_BLOCK -123456789
 
 Fragment::Fragment(const Fragment &rhs)
 {
@@ -107,7 +108,7 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side) {
         auto result = results_for_variant[i];
         Call* s1_call = result->calls[idx1];
         Call* s2_call = result->calls[idx2];
-        if( s1_call->isHomo() || s2_call->isHomo() || !s2_call->phased) continue;
+        if( s1_call->isHomo() || s2_call->isHomo() || !s2_call->isPhased()) continue;
 //        check mendel?
         if(s1_call->allele1 != s2_call->allele1 && s1_call->allele1 != s2_call->allele2 &&
             s1_call->allele2 != s2_call->allele1 && s1_call->allele2 != s2_call->allele2)
@@ -117,24 +118,110 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side) {
             reads[s2_call->ps] = read;
         }
 
-        if(s1_call->phased) {
+        if(s1_call->isPhased()) {
             auto o_side = side;
             if(s1_call->allele1 == s2_call->allele2 || s1_call->allele2 == s2_call->allele1) {
                 o_side = abs(side -1);
             } else {
                 o_side = abs(side);
             }
-            reads[s2_call->ps]->set_covered_call(s1_call, o_side, s1_call->pos);
-
+            reads[s2_call->ps]->set_covered_call(s1_call->ps, o_side, s1_call->pos);
         } else {
+            if (s1_call->allele1 == s2_call->allele2 || s1_call->allele2 == s2_call->allele1) {
+                auto t = s1_call->allele1;
+                s1_call->allele1 = s1_call->allele2;
+                s1_call->allele2 = t;
+            }
             s1_call->ps = -s2_call->ps;
-            s1_call->allele1 = s2_call->allele1;
-            s2_call->allele2 = s2_call->allele2;
-        }
-        auto hete_reads = new InfoSet();
-        for(auto it: reads) {
-            hete_reads.add_read(it.second)
         }
     }
+    InfoSet hete_reads;
+    for(auto it: reads) {
+        hete_reads.add_read(it.second);
+    }
+    extend(idx1, hete_reads);
+}
 
+void ChromoPhaser::extend(int idx, InfoSet& infoSet) {
+    std::unordered_map<int ,int> finalize_new_block_ids;
+    int f_new_id;
+    for(int i = 0; i < this->results_for_variant.size(); i++) {
+        auto result = results_for_variant[i];
+        Call* s1_call = result->calls[idx];
+        if (s1_call->isHomo()) continue;
+        if (s1_call->ps == 0) continue;
+        auto new_block_id = infoSet.find(s1_call->ps);
+        auto n_r = infoSet.blocks_reverse_info[s1_call->ps];
+        if (new_block_id == -1) {
+            if (finalize_new_block_ids.find(s1_call->ps) != finalize_new_block_ids.end()) {
+                f_new_id = finalize_new_block_ids[s1_call->ps];
+            } else {
+                f_new_id = finalize_new_block_ids.size() + 1;
+                finalize_new_block_ids.emplace(s1_call->ps, f_new_id);
+            }
+        } else {
+            if(finalize_new_block_ids.find(new_block_id) != finalize_new_block_ids.end()) {
+                f_new_id = finalize_new_block_ids[new_block_id];
+            } else {
+                f_new_id = finalize_new_block_ids.size() + 1;
+                finalize_new_block_ids.emplace(new_block_id, f_new_id);
+            }
+        }
+        s1_call->ps = f_new_id;
+        if(n_r){
+            auto t = s1_call->allele1;
+            s1_call->allele1 = s1_call->allele2;
+            s1_call->allele2 = t;
+        }
+    }
+    for(auto it : finalize_new_block_ids) {
+        if (it.first != it.second) {
+            P_ENSURE_BLOCK = it.first;
+            P_ENSURE_SIDE = it.second;
+        }
+    }
+}
+
+void ChromoPhaser::phase_with_homo(int idx1, int idx2, int side) {
+//    auto idx2_phase_block = this->phased_blocks_info[idx2];
+    auto read = new PInfo(SPECIFIC_HOMO_BLOCK);
+    for(int i = 0; i < this->results_for_variant.size(); i++) {
+        auto result = results_for_variant[i];
+        Call *s1_call = result->calls[idx1];
+        Call *s2_call = result->calls[idx2];
+        if (s1_call->isHomo() || !s2_call->isHomo()) continue;
+//        check mendel?
+        if ((s1_call->allele1 != s2_call->allele1 && s1_call->allele1 != s2_call->allele2) ||
+                (s1_call->allele2 != s2_call->allele1 && s1_call->allele2 != s2_call->allele2))
+            continue;
+//        if (reads.find(s2_call->ps) == reads.end()) {
+//            auto read = new PInfo(s2_call->ps);
+//            reads[s2_call->ps] = read;
+//        }
+
+        if (s1_call->isPhased()) {
+            auto o_side = side;
+            if (s1_call->allele1 == s2_call->allele2 || s1_call->allele2 == s2_call->allele1) {
+                o_side = abs(side - 1);
+            } else {
+                o_side = abs(side);
+            }
+            read->set_covered_call(s1_call->ps, o_side, s1_call->pos);
+
+        } else {
+            s1_call->ps = SPECIFIC_HOMO_BLOCK;
+            if(side == 0 && s1_call->allele1 != s2_call->allele1) {
+                auto t = s1_call->allele1;
+                s1_call->allele1 = s1_call->allele2;
+                s1_call->allele2 = t;
+            } else if(side == 0 && s1_call->allele1 == s2_call->allele2){
+                auto t = s1_call->allele1;
+                s1_call->allele1 = s1_call->allele2;
+                s1_call->allele2 = t;
+            }
+        }
+    }
+    InfoSet hete_reads;
+    hete_reads.add_read(read);
+    extend(idx1, hete_reads);
 }

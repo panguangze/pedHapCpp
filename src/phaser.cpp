@@ -14,9 +14,9 @@
 
 Phaser::Phaser(const std::string &fnvcf, const std::string &fnout)
 {
-    sample_count = bcf_hdr_nsamples(this->frvcf->header);
     frvcf = new VCFReader(fnvcf.data());
     fwvcf = new VCFWriter(frvcf->header, fnout.data());
+    sample_count = bcf_hdr_nsamples(this->frvcf->header);
     sample_to_idx = new std::unordered_map<std::string, int>();
     coverage = 30;  //deprecated
     bool use_secondary = false;
@@ -118,11 +118,16 @@ void Phaser::phasing()
         auto nsmp = bcf_hdr_nsamples(this->frvcf->header);
         ChromoPhaser *chromo_phaser = new ChromoPhaser(rid, frvcf->contigs[rid], nsmp);
         this->chromoPhaser = chromo_phaser;
-        std::string mess = "phasing haplotype for " + std::string(frvcf->contigs[rid]);
-        logging(std::cerr, mess);
+        std::string mess = "Reading contig " + std::string(frvcf->contigs[rid]);
+        logging(std::clog, mess);
         load_contig_blocks(chromo_phaser);
-
-        phasing_by_chrom();
+        std::string mess2 = "phasing haplotype for " + std::string(frvcf->contigs[rid]);
+        logging(std::clog, mess2);
+        std::vector<std::string> names;
+        names.emplace_back("child_12");
+        names.emplace_back("father_12");
+        names.emplace_back("mother_12");
+        phasing_by_chrom(names);
         fwvcf->write_nxt_contigs(frvcf->contigs[rid].data(), chromo_phaser, *frvcf);
         delete chromo_phaser;
     }
@@ -163,5 +168,11 @@ void Phaser::phasing_by_chrom(std::vector<std::string>& trios)
 //        auto e_block_start = it.second->end_variant_idx;
 //
 //    }
-
+    logging(std::cerr, "hete1");
+    chromoPhaser->phase_with_hete(s_idx, f_idx, 0);
+    logging(std::cerr, "hete2");
+    chromoPhaser->phase_with_hete(s_idx, m_idx, 1);
+    logging(std::cerr, "homo1");
+    chromoPhaser->phase_with_homo(s_idx, f_idx,0);
+    chromoPhaser->phase_with_homo(s_idx, m_idx,1);
 }

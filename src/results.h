@@ -6,7 +6,6 @@
 #define SPECHAP_RESULTS_H
 #include <bitset>
 #include <memory>
-#include <htslib/vcf.h>
 #include <unordered_map>
 #include "vector"
 
@@ -41,9 +40,9 @@ class PhasedBlock;
 class Call : public std::enable_shared_from_this<Call>{
 public:
     bool phased;
-    uint allele1;
-    uint allele2;
-    uint ps;
+    int allele1;
+    int allele2;
+    int ps;
     int pos;
     std::weak_ptr<PhasedBlock> block;
     bool need_flip;
@@ -54,6 +53,9 @@ public:
     }
     inline bool isHomo() {
         return allele1 == allele2;
+    }
+    inline bool isPhased() {
+        return ps!=0;
     }
 };
 

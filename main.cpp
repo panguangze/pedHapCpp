@@ -2,9 +2,12 @@
 #include <cstring>
 #include <fstream>
 #include "src/cxxopts.hpp"
-#include "vcflib/Variant.h"
 #include "src/phaser.h"
 using namespace std;
+float T1;
+float T2;
+int P_ENSURE_BLOCK;
+int P_ENSURE_SIDE;
 
 //TODO this is a tmp
 int main(int argc, char *argv[]) {
