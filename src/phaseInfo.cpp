@@ -5,23 +5,20 @@
 #include "phaseInfo.h"
 
 PInfo::PInfo(int infoId) {
-    this->infoId = -infoId;
-    this->firstBlock = -1;
+    this->infoId = infoId;
 }
 
 void PInfo::set_covered_call(int b_ps, int side, int pos) {
-    if(firstBlock == -1) firstBlock = b_ps;
-    if (blocks.find(b_ps) != blocks.end()) {
-        if (side == 0) {
-            side0_support[b_ps]->push_back(pos);
-        }
-        if (side == 1) {
-            side1_support[b_ps]->push_back(pos);
-        }
-    } else {
+    if (blocks.find(b_ps)== blocks.end()) {
         blocks.emplace(b_ps, 1);
         side0_support[b_ps] = new std::vector<int>();
         side1_support[b_ps] = new std::vector<int>();
+    }
+    if (side == 0) {
+        side0_support[b_ps]->push_back(pos);
+    }
+    if (side == 1) {
+        side1_support[b_ps]->push_back(pos);
     }
 }
 
@@ -36,17 +33,20 @@ void PInfo::init_blocks() {
         if (block_id == infoId) continue;
         auto v0 = (float)side0_support[block_id]->size();
         auto v1 = (float)side1_support[block_id]->size();
-        if (v1 == v0 || (v0 != 0 && v1 != 0 && std::max(v0, v1)/std::min(v0, v1) <= T1) || (abs(v1 - v0) <= T2 && (v1 ==0 || v0 == 0))){
-            uncertain_blocks.push_back(block_id);
-        } else {
+//        if (v1 == v0 || (v0 != 0 && v1 != 0 && std::max(v0, v1)/std::min(v0, v1) <= T1) || (abs(v1 - v0) <= T2 && (v1 ==0 || v0 == 0))){
+        if (std::abs(v1 - v0) >= T2 ||((v1 == 0 || v0 == 0) && std::abs(v1 - v0) >= T1)){
+            certain_blocks.push_back(block_id);
             auto n_r = false;
             if (v1 > v0) {
                 n_r = true;
                 it.second = 0;
             }
             block_reverses[block_id] = n_r;
+//if (v1 == v0 || (v0 != 0 && v1 != 0 && std::min(v1, v0) / std::max(v1, v0)  > T1) || (std::abs(v1 - v0) < T2 && (v1 ==0 || v0 == 0))){
+        } else {
+            uncertain_blocks.push_back(block_id);
         }
     }
-    blocks.emplace(infoId, -1);
+    certain_blocks.push_back(infoId);
     block_reverses[infoId] = false;
 }

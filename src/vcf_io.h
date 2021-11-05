@@ -13,8 +13,6 @@
 #include "results.h"
 #include "type.h"
 
-typedef std::map<filter_type, std::string> filter_map_t;
-
 enum format_n {
     GT, PS
 };
@@ -67,14 +65,6 @@ public:
         free(temp);
     }
 
-    /*
-    inline int get_AF0(float *af0, bcf1_t *record)
-    {
-        float **AF = nullptr;
-        int32_t l_AF;
-        bcf_get_info_float(header, record, "AF", &AF, &l_AF);
-    }*/
-
     inline int get_next_record(bcf1_t *record) {
         if (iter == nullptr)
             return -1;
@@ -97,10 +87,21 @@ public:
         int status = tbx_itr_next(vcf_file, tbx_index, iter, &tmp);
         if (status < 0)
             return status;
+
         status = vcf_parse1(&tmp, header, buffer);
         if (status != 0) //eof or corruption in file
             return -1;
         //new contig
+        int ninfo_arr = 0, ninfo = 0;
+        char * info = NULL;
+
+        ninfo = bcf_get_info_string(header, buffer, "SVTYPE", &info, &ninfo_arr);
+
+        if (ninfo < 0)
+            result->bnd = false;
+        else
+            result->bnd = true;
+
         if (buffer->rid != this->curr_bcf_contig)
             return -1;
         //bcf_subset_format(header, record);
@@ -111,19 +112,19 @@ public:
         int *gt_arr = nullptr, *ps_arr = nullptr, ngt_arr =0, nps_arr = 0;
         ngt = bcf_get_genotypes(header, buffer, &gt_arr, &ngt_arr);
         nps = bcf_get_format_int32(header, buffer, "PS", &ps_arr, &nps_arr);
-
+        result->pos = buffer->pos;
+        result->ID = buffer->rid;
         int max_ploidy = ngt / nsmpl;
+//        if(nps <0 ) return -1;
         for (i = 0; i < nsmpl; i++) {
             int *ptr = gt_arr + i * max_ploidy;
-            int *p_ptr = ps_arr + i;
+            int *p_ptr = (ps_arr == nullptr? nullptr : ps_arr + i);
             auto call = new Call();
             call->allele1 = bcf_gt_allele(ptr[0]);
             call->allele2 = bcf_gt_allele(ptr[1]);
-            p_ptr == nullptr ? call->ps = 0 : call->ps = *p_ptr;
+            p_ptr == nullptr || *p_ptr <=0 ? call->block_id = 0 : call->block_id = *p_ptr;
             call->pos = buffer->pos;
-            call->phased = bcf_gt_is_phased(ptr[0]);
             result->calls.push_back(call);
-
         }
         free(gt_arr); free(ps_arr);
         //bcf_destroy(r);
@@ -147,20 +148,7 @@ private:
     bcf_hdr_t *header;
     htsFile *fp;
     int sample_count;
-    std::map<filter_type, const char *> FilterN;
     std::map<format_n, const char *> FormatN;
-    filter_map_t filter_map =
-            {
-                    {filter_type::NOINFO,                              "INFO_NOT_ENOUGH"},
-                    {filter_type::POOLRESULT,                          "POOL_SPECTRAL_RESULT"},
-                    {filter_type::TENXINCONSISTENCY,                   "10X_PHASING_INCONSISTENCY"},
-                    {filter_type::PASS,                                "PASS"},
-                    {filter_type::CONFILCTINGRESULT,                   "WINDOW_RESULT_INCONSISTENCY"},
-                    {filter_type::TENX_ALLELE_FRENCENCY_FILTER,        "10X_ALLELE_FREQUENCY_FILTER"},
-                    {filter_type::LOW_COVERAGE,                        "LOW_COVERAGE"},
-                    {filter_type::TENX_QUAL_FILTER,                    "TENX_QUAL_FILTER"},
-                    {filter_type::TENX_RESCUED_MOLECUE_HIGH_DIVERSITY, "TENX_RESCUED_MOLECUE_HIGH_DIVERSITY"}
-            };
     int ngt;
     int *gt;
 

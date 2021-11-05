@@ -77,7 +77,6 @@ VCFWriter::VCFWriter(const bcf_hdr_t *hdr, const char *outfile)
 {
 
     fp = bcf_open(outfile, "w");
-    map_init(this->FilterN) (filter_type::NOINFO, "INFO_NOT_ENOUGH") (filter_type::POOLRESULT, "POOL_SPECTRAL_RESULT") (filter_type::TENXINCONSISTENCY, "10X_PHASING_INCONSISTENCY") (filter_type::PASS, "PASS");
     map_init(this->FormatN) (GT, "GT") (PS, "PS");
 
     header = bcf_hdr_dup(hdr);
@@ -186,36 +185,22 @@ void VCFWriter::write_nxt_record(bcf1_t *record, std::shared_ptr<VcfRecord> resu
     int *gt_arr = nullptr, *ps_arr = nullptr, ngt_arr =0, nps_arr = 0;
     bcf_get_genotypes(header, record, &gt_arr, &ngt_arr);
     bcf_get_format_int32(header, record, "PS", &ps_arr, &nps_arr);
+    if (ps_arr == nullptr) {
+        ps_arr = (int *) malloc(ngt);
+    }
 
     for (i = 0; i < nsmpl; i++) {
-        int ref;
-        int alt;
-        int *ptr = gt_arr + i * 2;
         int *p_ptr = ps_arr + i;
         auto tcall = result->calls[i];
-        int allele0 = bcf_gt_allele(tcall->allele1);
-        int allele1 = bcf_gt_allele(tcall->allele2);
-        int temp = bcf_alleles2gt(allele0, allele1);;
-        bcf_gt2alleles(temp, &ref, &alt);
-        if(tcall->need_flip) {
-            if (tcall->isPhased()) {
-                gt[2*i] = bcf_gt_phased(ref);
-                gt[2*i + 1] = bcf_gt_phased(alt);
-            } else {
-                gt[2*i] = bcf_gt_unphased(ref);
-                gt[2*i + 1] = bcf_gt_unphased(alt);
-            }
+        if (tcall->isPhased()) {
+            gt[2*i] = bcf_gt_phased(tcall->allele1);
+            gt[2*i + 1] = bcf_gt_phased(tcall->allele2);
         } else {
-            if (tcall->isPhased()) {
-                gt[2*i] = bcf_gt_phased(alt);
-                gt[2*i + 1] = bcf_gt_phased(ref);
-            } else {
-                gt[2*i] = bcf_gt_unphased(alt);
-                gt[2*i + 1] = bcf_gt_unphased(ref);
-            }
+            gt[2*i] = bcf_gt_unphased(tcall->allele1);
+            gt[2*i + 1] = bcf_gt_unphased(tcall->allele2);
         }
         p_ptr[i] = ps_nos[i];
-        bcf_update_genotypes(this->header, record, gt_arr, ngt);
+        bcf_update_genotypes(this->header, record, gt, ngt);
         bcf_update_format_int32(this->header, record, "PS", ps_arr, sample_count);
     }
     free(gt_arr); free(ps_arr);
@@ -230,9 +215,6 @@ void VCFWriter::write_nxt_record(bcf1_t *record, std::shared_ptr<VcfRecord> resu
 void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phaser, VCFReader &frvcf)
 {
     bcf1_t *record = bcf_init();
-    uint blk_count = 0;
-    int gap_count = 0;
-    std::unordered_map<ptr_PhasedBlock, uint > encountered_phased_block;
     frvcf.jump_to_contig(frvcf.curr_contig);
     std::vector<std::unordered_map<uint, uint>> idx2pos;
     for (int i = 0; i<sample_count;i++) {
@@ -245,50 +227,11 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
         auto result = chromo_phaser->results_for_variant[idx];
         bcf_translate(this->header, frvcf.header, record);
         std::vector<int> ps_nos;
-        for (int j = 0; j < result->calls.size(); j++) {
-            auto tcall = result->calls[j];
-            ps_nos.push_back(tcall->ps);
+        for (auto tcall : result->calls) {
+            ps_nos.push_back(tcall->block_id);
         }
-//            idx2pos[j][idx] = record->pos + 1;
-//            auto tcall = result->calls[j];
-//            if (tcall->isPhased())
-//            {
-//                if (gap_count >= 30)
-//                {
-//                    blk_count++;
-//                }
-//                ptr_PhasedBlock block = tcall->block.lock();
-//                if (block.get() == nullptr)
-//                {
-//                    ps_nos.push_back(0);
-//                    continue;
-//                }
-//                //already met
-//                if (encountered_phased_block.count(block) != 0)
-//                {
-//                    ps_nos.push_back(idx2pos[j][block->start_variant_idx]);
-////                    uint blk_no = encountered_phased_block[block];
-////                    write_nxt_record(record, result, idx2pos[block->start_variant_idx]);
-//                }
-//                else
-//                {
-//                    encountered_phased_block.emplace(block, ++blk_count);
-////                    write_nxt_record(record, result, idx2pos[block->start_variant_idx]);
-//                    ps_nos.push_back(idx2pos[j][block->start_variant_idx]);
-//                }
-//
-//                gap_count = 0;
-//            }
-//            else
-//            {
-//                gap_count++;
-////                write_nxt_record(record, result, 0);
-//                ps_nos.push_back(0);
-//            }
-//        }
         write_nxt_record(record, result, ps_nos);
     }
-    encountered_phased_block.clear();
     bcf_destroy(record);
 }
 
