@@ -151,6 +151,7 @@ private:
     std::map<format_n, const char *> FormatN;
     int ngt;
     int *gt;
+    int *ps;
 
 private:
     void header_init();

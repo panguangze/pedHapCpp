@@ -85,6 +85,7 @@ VCFWriter::VCFWriter(const bcf_hdr_t *hdr, const char *outfile)
     ngt = 2 * sample_count;
 
     gt = new int[ngt];
+    ps = new int[sample_count];
 }
 
 void VCFWriter::header_init()
@@ -182,15 +183,14 @@ VCFWriter::~VCFWriter()
 void VCFWriter::write_nxt_record(bcf1_t *record, std::shared_ptr<VcfRecord> result, std::vector<int>& ps_nos)
 {
     int i, j,nsmpl = bcf_hdr_nsamples(header);
-    int *gt_arr = nullptr, *ps_arr = nullptr, ngt_arr =0, nps_arr = 0;
-    bcf_get_genotypes(header, record, &gt_arr, &ngt_arr);
-    bcf_get_format_int32(header, record, "PS", &ps_arr, &nps_arr);
-    if (ps_arr == nullptr) {
-        ps_arr = (int *) malloc(ngt);
-    }
+//    int *gt_arr = nullptr, *ps_arr = nullptr, ngt_arr =0, nps_arr = 0;
+//    bcf_get_genotypes(header, record, &gt_arr, &ngt_arr);
+//    bcf_get_format_int32(header, record, "PS", &ps_arr, &nps_arr);
+//    if (ps_arr == nullptr) {
+//        ps_arr = (int *) malloc(ngt/2);
+//    }
 
     for (i = 0; i < nsmpl; i++) {
-        int *p_ptr = ps_arr + i;
         auto tcall = result->calls[i];
         if (tcall->isPhased()) {
             gt[2*i] = bcf_gt_phased(tcall->allele1);
@@ -199,12 +199,10 @@ void VCFWriter::write_nxt_record(bcf1_t *record, std::shared_ptr<VcfRecord> resu
             gt[2*i] = bcf_gt_unphased(tcall->allele1);
             gt[2*i + 1] = bcf_gt_unphased(tcall->allele2);
         }
-        p_ptr[i] = ps_nos[i];
-        bcf_update_genotypes(this->header, record, gt, ngt);
-        bcf_update_format_int32(this->header, record, "PS", ps_arr, sample_count);
+        ps[i] = ps_nos[i];
     }
-    free(gt_arr); free(ps_arr);
-
+    bcf_update_genotypes(this->header, record, gt, ngt);
+    bcf_update_format_int32(this->header, record, "PS", ps, sample_count);
     bcf1_t *record_w = bcf_dup(record);
     int rr = bcf_write(this->fp, this->header, record_w);
     bcf_destroy(record_w);
