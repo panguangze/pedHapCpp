@@ -30,6 +30,13 @@ public:
     void phase_with_homo(int idx1, int idx2, int side);
     bool check_mendel(int idx1, int idx2, int idx3);
     void extend(int idx, InfoSet& infoSet, int side);
+    inline bool is_x() const {
+        return chr_name.find('x') != std::string::npos || chr_name.find('X') != std::string::npos;
+    }
+
+    inline bool is_y() const {
+        return chr_name.find('y') != std::string::npos || chr_name.find('Y') != std::string::npos;
+    }
 //    inline uint get_var_pos(uint idx) { return results_for_variant[idx]->get_pos(); }
 };
 

@@ -71,8 +71,8 @@ void Phaser::phasing()
     }
 }
 
-void Phaser::phasing_by_chrom() const
-{
+
+void Phaser::phasing_xy() const {
     int s_idx=-1, f_idx=-1, m_idx=-1;
     for(auto it: up_to_down) {
         s_idx = (*sample_to_idx)[it[0]];
@@ -91,7 +91,7 @@ void Phaser::phasing_by_chrom() const
     if(ONLY_CHILD) return;
     for(auto it: down_to_up) {
         s_idx = (*sample_to_idx)[it[0]];
-            chromoPhaser->check_mendel(s_idx, f_idx, m_idx);
+        chromoPhaser->check_mendel(s_idx, f_idx, m_idx);
         if(it[1] != EMPTY_ID) f_idx = (*sample_to_idx)[it[1]];
         if(it[2] != EMPTY_ID) m_idx = (*sample_to_idx)[it[2]];
         if(s_idx != -1 && m_idx != -1 && f_idx != -1)
@@ -101,6 +101,58 @@ void Phaser::phasing_by_chrom() const
             chromoPhaser->phase_with_homo(f_idx, s_idx,0);
         }
         if (m_idx != -1) {
+            chromoPhaser->phase_with_hete(m_idx, s_idx, 0);
+            chromoPhaser->phase_with_homo(m_idx, s_idx,0);
+        }
+    }
+
+}
+
+void Phaser::phasing_by_chrom() const
+{
+    int s_idx=-1, f_idx=-1, m_idx=-1;
+    bool is_child_male;
+    for(auto it: up_to_down) {
+        s_idx = (*sample_to_idx)[it[0]];
+        if(it[1] != EMPTY_ID)
+            f_idx = (*sample_to_idx)[it[1]];
+        if(it[2] != EMPTY_ID)
+            m_idx = (*sample_to_idx)[it[2]];
+        is_child_male = it[3] == "male";
+//        male and y
+        if(is_child_male && chromoPhaser->is_y()) {
+            chromoPhaser->phase_with_hete(s_idx, f_idx, 0);
+            chromoPhaser->phase_with_homo(s_idx, f_idx,0);
+        } else if (is_child_male && chromoPhaser->is_x()) { //male and x
+            chromoPhaser->phase_with_hete(s_idx, m_idx, 1);
+            chromoPhaser->phase_with_homo(s_idx, m_idx,1);
+        } else if (!is_child_male && chromoPhaser->is_y()) continue; // female and y continue.
+        else {
+            if(s_idx != -1 && m_idx != -1 && f_idx != -1)
+                chromoPhaser->check_mendel(s_idx, f_idx, m_idx);
+            chromoPhaser->check_mendel(s_idx, f_idx, m_idx);
+            chromoPhaser->phase_with_hete(s_idx, f_idx, 0);
+            chromoPhaser->phase_with_hete(s_idx, m_idx, 1);
+            chromoPhaser->phase_with_homo(s_idx, f_idx,0);
+            chromoPhaser->phase_with_homo(s_idx, m_idx,1);
+        }
+    }
+    if(ONLY_CHILD) return;
+    for(auto it: down_to_up) {
+        s_idx = (*sample_to_idx)[it[0]];
+//            chromoPhaser->check_mendel(s_idx, f_idx, m_idx);
+        if(it[1] != EMPTY_ID) f_idx = (*sample_to_idx)[it[1]];
+        if(it[2] != EMPTY_ID) m_idx = (*sample_to_idx)[it[2]];
+        is_child_male = it[3] == "male";
+        if(s_idx != -1 && m_idx != -1 && f_idx != -1)
+            chromoPhaser->check_mendel(s_idx, f_idx, m_idx);
+        if(f_idx != -1) {
+            if (!is_child_male && chromoPhaser->is_y()) continue;
+            chromoPhaser->phase_with_hete(f_idx, s_idx, 0);
+            chromoPhaser->phase_with_homo(f_idx, s_idx,0);
+        }
+        if (m_idx != -1) {
+            if (chromoPhaser->is_y()) continue;
             chromoPhaser->phase_with_hete(m_idx, s_idx, 0);
             chromoPhaser->phase_with_homo(m_idx, s_idx,0);
         }

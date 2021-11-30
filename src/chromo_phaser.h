@@ -10,6 +10,8 @@
 #include "util.h"
 
 extern bool ONLY_CHILD;
+extern bool XY;
+extern bool IS_MALE;
 class Phaser
 {
 public:
@@ -22,11 +24,13 @@ public:
     ~Phaser();
     void phasing();
 
-private:
     VCFReader *frvcf;
     VCFWriter *fwvcf;
     void phasing_by_chrom() const;
     int load_contig_blocks(ChromoPhaser *chromo_phaser);
+
+    void phasing_xy() const;
+
 };
 
 #endif //SPECHAP_PHASER_H
