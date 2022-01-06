@@ -26,6 +26,7 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side) {
     std::unordered_map<uint, PInfo*> reads;
     for(int mendel_pas : this->mendel_pass) {
         auto result = results_for_variant[mendel_pas];
+        if(result->bnd) continue;
         Call* s1_call = result->calls[idx1];
         Call* s2_call = result->calls[idx2];
         if( s1_call->isHomo() || s2_call->isHomo() || !s2_call->isPhased()) continue;
