@@ -25,7 +25,6 @@ class Record:
         self.ps = PS
         self.idx = idx
         if not rec.is_snp:
-            print(rec.POS)
             self.bnd = 1
     
         

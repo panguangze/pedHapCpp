@@ -58,6 +58,8 @@ def get_phase_set_stats(template_phase_set:PhaseSet, phase_set:PhaseSet):
     N50 = last_record_pos - phase_set.starting_pos
     spaned_record = last_record_idx - first_record_idx + 1
     AN50 = N50/spaned_record * S50
+    if bnd_switched_error_count < 0:
+        bnd_switched_error_count = 0
     return AN50, S50, N50, switch_error_count, mismatch_error_count, spaned_record, bnd_count, bnd_switched_error_count, bnd_missmatch_error_count
 
 
@@ -72,7 +74,7 @@ def get_haplotype_stats_chromo(template_chromo:ChromosomoHaplotype, in_chromo:Ch
     for phase_set in in_chromo.chromo_phase_set.values():
         AN50, S50, N50, switch_error_count, mismatch_error_count, spanned_snp, bnd_count, bnd_switched_error_count, bnd_missmatch_error_count = get_phase_set_stats(template_phase_set, phase_set)
         phase_set_stats = PhaseSetStats(switch_error_count, mismatch_error_count, S50, N50, AN50, spanned_snp, bnd_count, bnd_switched_error_count, bnd_missmatch_error_count)
-        if S50 < 2:
+        if S50 < 2 or S50 - bnd_count == 0:
             continue
         hap_stats.insert_phase_set_stats(0, phase_set_stats)
         index += 1
@@ -92,7 +94,7 @@ def get_haplotype_stats(template_vcf:vcf.Reader, in_vcf:vcf.Reader, out):
             in_chromo = ChromosomoHaplotype(in_vcf, contig)
             chromo_hap_stats = get_haplotype_stats_chromo(template_chromo, in_chromo, out, contig)
             hap_stats.insert_hap_stats(chromo_hap_stats)
-        except:
+        except Exception as e:
             continue
     out.write("%s\t%d\t%d\t%d\t%d\t%.8f\t%.8f\t%d\t%d\t%d\n" % ("total", hap_stats.get_AN50(), hap_stats.get_N50(), hap_stats.get_total_phased(), hap_stats.get_total_spanned(),hap_stats.get_switch_error(), hap_stats.get_mismatch_error(), hap_stats.get_bnd_count(), hap_stats.get_bnd_switch(), hap_stats.get_bnd_mismatch()))
 
