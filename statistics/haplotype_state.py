@@ -22,10 +22,11 @@ def get_phase_set_stats(template_phase_set:PhaseSet, phase_set:PhaseSet):
     bnd_missmatch_error_count = 0
     for record_pos in phase_set.records.keys():
         record = phase_set.records[record_pos]
-        record_count += 1
-        t_record = template_phase_set.records[record_pos]
         if record.bnd:
             bnd_count = bnd_count + 1
+            # continue
+        record_count += 1
+        t_record = template_phase_set.records[record_pos]
         if record_count == total_record:
             last_record_idx = record.idx
             last_record_pos = record.pos
@@ -95,6 +96,7 @@ def get_haplotype_stats(template_vcf:vcf.Reader, in_vcf:vcf.Reader, out):
             chromo_hap_stats = get_haplotype_stats_chromo(template_chromo, in_chromo, out, contig)
             hap_stats.insert_hap_stats(chromo_hap_stats)
         except Exception as e:
+            print(e)
             continue
     out.write("%s\t%d\t%d\t%d\t%d\t%.8f\t%.8f\t%d\t%d\t%d\n" % ("total", hap_stats.get_AN50(), hap_stats.get_N50(), hap_stats.get_total_phased(), hap_stats.get_total_spanned(),hap_stats.get_switch_error(), hap_stats.get_mismatch_error(), hap_stats.get_bnd_count(), hap_stats.get_bnd_switch(), hap_stats.get_bnd_mismatch()))
 

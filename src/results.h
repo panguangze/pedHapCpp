@@ -24,6 +24,11 @@ public:
     inline bool isPhased() {
         return block_id > 0;
     }
+    inline void flip() {
+        auto t = allele1;
+        allele1 = allele2;
+        allele2 = t;
+    }
 };
 
 

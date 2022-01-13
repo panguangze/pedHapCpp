@@ -108,6 +108,10 @@ void Phaser::phasing_xy() const {
 
 }
 
+void Phaser::correct() const {
+
+}
+
 void Phaser::phasing_by_chrom() const
 {
     int s_idx=-1, f_idx=-1, m_idx=-1;
@@ -135,6 +139,7 @@ void Phaser::phasing_by_chrom() const
             chromoPhaser->phase_with_hete(s_idx, m_idx, 1);
             chromoPhaser->phase_with_homo(s_idx, f_idx,0);
             chromoPhaser->phase_with_homo(s_idx, m_idx,1);
+            chromoPhaser->correct_conflict(s_idx);
         }
     }
     if(ONLY_CHILD) return;

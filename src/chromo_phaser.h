@@ -27,6 +27,7 @@ public:
     VCFReader *frvcf;
     VCFWriter *fwvcf;
     void phasing_by_chrom() const;
+    void correct() const;
     int load_contig_blocks(ChromoPhaser *chromo_phaser);
 
     void phasing_xy() const;

@@ -22,7 +22,7 @@ void PInfo::set_covered_call(int b_ps, int side, int pos) {
     }
 }
 
-void PInfo::init_blocks() {
+void PInfo::init_blocks(std::vector<int>& confilict_poses) {
     for(auto it: blocks) {
         int block_id = it.first;
         int side = it.second;
@@ -40,6 +40,13 @@ void PInfo::init_blocks() {
             if (v1 > v0) {
                 n_r = true;
                 it.second = 0;
+                for (auto item : *side0_support[block_id]) {
+                    confilict_poses.push_back(item);
+                }
+            } else {
+                for (auto item : *side1_support[block_id]) {
+                    confilict_poses.push_back(item);
+                }
             }
             block_reverses[block_id] = n_r;
 //if (v1 == v0 || (v0 != 0 && v1 != 0 && std::min(v1, v0) / std::max(v1, v0)  > T1) || (std::abs(v1 - v0) < T2 && (v1 ==0 || v0 == 0))){

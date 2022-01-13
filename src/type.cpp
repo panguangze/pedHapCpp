@@ -20,13 +20,22 @@ void ChromoPhaser::add_result(const std::shared_ptr<VcfRecord>& result) {
     this->results_for_variant.push_back(result);
 }
 
+void ChromoPhaser::correct_conflict(int idx){
+    std::set<int> intersect;
+    set_intersection(conflicts1.begin(), conflicts1.end(), conflicts2.begin(), conflicts2.end(),
+                     std::inserter(intersect, intersect.begin()));
+    for (auto item : intersect) {
+        results_for_variant[item]->calls[idx]->flip();
+    }
+}
+
 void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side) {
     logging(std::cerr,"phasing hete");
 //    auto idx2_phase_block = this->phased_blocks_info[idx2];
     std::unordered_map<uint, PInfo*> reads;
     for(int mendel_pas : this->mendel_pass) {
         auto result = results_for_variant[mendel_pas];
-        if(result->bnd) continue;
+//        if(result->bnd) continue;
         Call* s1_call = result->calls[idx1];
         Call* s2_call = result->calls[idx2];
         if( s1_call->isHomo() || s2_call->isHomo() || !s2_call->isPhased()) continue;
@@ -46,7 +55,7 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side) {
             } else {
                 o_side = abs(side);
             }
-            reads[s2_call->block_id]->set_covered_call(s1_call->block_id, o_side, s1_call->pos);
+            reads[s2_call->block_id]->set_covered_call(s1_call->block_id, o_side, mendel_pas);
         } else {
             if ((s1_call->allele1 != s2_call->allele2 && s1_call->allele1 != s2_call->allele1) ||
                     (s1_call->allele2 != s2_call->allele2 && s1_call->allele2 != s2_call->allele1))
@@ -65,6 +74,13 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side) {
         hete_reads.add_read(it.second);
     }
     extend(idx1, hete_reads, side);
+    for (auto item : hete_reads.confilict_poses) {
+        if (idx2 % 2 == 0) {
+            conflicts1.insert(item);
+        } else {
+            conflicts2.insert(item);
+        }
+    }
 }
 
 void ChromoPhaser::extend(int idx, InfoSet& infoSet, int side) {
@@ -133,7 +149,7 @@ void ChromoPhaser::phase_with_homo(int idx1, int idx2, int side) {
             } else {
                 o_side = abs(side);
             }
-            read->set_covered_call(s1_call->block_id, o_side, s1_call->pos);
+            read->set_covered_call(s1_call->block_id, o_side, mendel_pas);
         } else {
             s1_call->block_id = SPECIFIC_HOMO_BLOCK;
             if(side == 0 && s1_call->allele1 != s2_call->allele1) {
@@ -150,6 +166,13 @@ void ChromoPhaser::phase_with_homo(int idx1, int idx2, int side) {
     InfoSet hete_reads;
     hete_reads.add_read(read);
     extend(idx1, hete_reads,side);
+    for (auto item : hete_reads.confilict_poses) {
+        if (idx2 % 2 == 0) {
+            conflicts1.insert(item);
+        } else {
+            conflicts2.insert(item);
+        }
+    }
 }
 
 bool ChromoPhaser::check_mendel(int idx1, int idx2, int idx3) {

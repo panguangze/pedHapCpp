@@ -25,7 +25,7 @@ public:
     int infoId;
     explicit PInfo(int infoId);
     void set_covered_call(int ps, int side, int pos);
-    void init_blocks();
+    void init_blocks(std::vector<int>& confilict_poses);
 };
 
 class InfoSet {
@@ -46,7 +46,7 @@ public:
     }
 
     void add_read(PInfo* pinfo){
-        pinfo->init_blocks();
+        pinfo->init_blocks(confilict_poses);
 //        ensure block is better
         auto first_block = pinfo->certain_blocks[0];
         auto first_reverse = pinfo->block_reverses[first_block];
