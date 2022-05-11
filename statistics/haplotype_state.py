@@ -2,6 +2,7 @@ import vcf
 import argparse
 from record import Record, PhaseSet, ChromosomoHaplotype
 from stats import PhaseSetStats, HapStats
+import traceback
 
 
 def get_phase_set_stats(template_phase_set:PhaseSet, phase_set:PhaseSet):
@@ -20,12 +21,18 @@ def get_phase_set_stats(template_phase_set:PhaseSet, phase_set:PhaseSet):
     bnd_count = 0
     bnd_switched_error_count = 0
     bnd_missmatch_error_count = 0
+    switchs = []
+    mismatchs = []
     for record_pos in phase_set.records.keys():
+        if record_pos not in template_phase_set.records.keys():
+            continue
         record = phase_set.records[record_pos]
         if record.bnd:
             bnd_count = bnd_count + 1
             # continue
         record_count += 1
+        # print(template_phase_set.records)
+
         t_record = template_phase_set.records[record_pos]
         if record_count == total_record:
             last_record_idx = record.idx
@@ -40,28 +47,43 @@ def get_phase_set_stats(template_phase_set:PhaseSet, phase_set:PhaseSet):
             if switched != t_switched:  # switch error
                 if record_count > 2 and record_count < total_record:
                     switch_error_count += 1
-                    if record.bnd:
-                        bnd_switched_error_count += 1
+                    switchs.append(record)
+                    # if record.bnd:
+                    #     bnd_switched_error_count += 1
                 if prev_switch_error:   # mismatch error
                     mismatch_error_count += 1
                     switch_error_count -= 2
                     prev_switch_error = False
-                    if record.bnd:
-                        bnd_switched_error_count -= 2
-                        bnd_missmatch_error_count += 1
+                    if len(switchs) > 0:
+                        switchs.pop(-1)
+                    if len(switchs) > 0:
+                        switchs.pop(-1)
+                    mismatchs.append(prev_record)
+                        # bnd_switched_error_count -= 2
+                        # bnd_missmatch_error_count += 1
                 else:
                     prev_switch_error = True
             else:                       #no switch error for ajunct pos, reset
                 prev_switch_error = False
             prev_record = record
             t_prev_record = t_record
+    sws = []
+    mis = []
+    for i in switchs:
+        if i.bnd == 1:
+            bnd_switched_error_count +=1
+            sws.append(i.pos)
+    for i in mismatchs:
+        if i.bnd == 1:
+            bnd_missmatch_error_count +=1
+            mis.append(i.pos)
     S50 = total_record
     N50 = last_record_pos - phase_set.starting_pos
     spaned_record = last_record_idx - first_record_idx + 1
     AN50 = N50/spaned_record * S50
     if bnd_switched_error_count < 0:
         bnd_switched_error_count = 0
-    return AN50, S50, N50, switch_error_count, mismatch_error_count, spaned_record, bnd_count, bnd_switched_error_count, bnd_missmatch_error_count
+    return AN50, S50, N50, switch_error_count, mismatch_error_count, spaned_record, bnd_count, bnd_switched_error_count, bnd_missmatch_error_count,sws, mis
 
 
 def get_haplotype_stats_chromo(template_chromo:ChromosomoHaplotype, in_chromo:ChromosomoHaplotype, out, contig):
@@ -73,14 +95,14 @@ def get_haplotype_stats_chromo(template_chromo:ChromosomoHaplotype, in_chromo:Ch
     hap_stats = HapStats(chromo_snp_count, chromo_span)
     index = 0
     for phase_set in in_chromo.chromo_phase_set.values():
-        AN50, S50, N50, switch_error_count, mismatch_error_count, spanned_snp, bnd_count, bnd_switched_error_count, bnd_missmatch_error_count = get_phase_set_stats(template_phase_set, phase_set)
+        AN50, S50, N50, switch_error_count, mismatch_error_count, spanned_snp, bnd_count, bnd_switched_error_count, bnd_missmatch_error_count,switchs,mismatchs = get_phase_set_stats(template_phase_set, phase_set)
         phase_set_stats = PhaseSetStats(switch_error_count, mismatch_error_count, S50, N50, AN50, spanned_snp, bnd_count, bnd_switched_error_count, bnd_missmatch_error_count)
         if S50 < 2 or S50 - bnd_count == 0:
             continue
         hap_stats.insert_phase_set_stats(0, phase_set_stats)
         index += 1
-        out.write("%s\t%d\t%d\t%d\t%d\t%.8f\t%.8f\t%d\t%d\t%d\n" % (contig, phase_set_stats.get_AN50(), phase_set_stats.get_N50(), phase_set_stats.get_phased_snp(), spanned_snp, phase_set_stats.get_switch_error(), phase_set_stats.get_mismatch_error(),
-                                                                    phase_set_stats.bnd_count, phase_set_stats.bnd_switched_error_count, phase_set_stats.bnd_missmatch_error_count))
+        out.write("%s\t%d\t%d\t%d\t%d\t%.8f\t%.8f\t%d\t%d\t%d\t%s\t%s\n" % (contig, phase_set_stats.get_AN50(), phase_set_stats.get_N50(), phase_set_stats.get_phased_snp(), spanned_snp, phase_set_stats.get_switch_error(), phase_set_stats.get_mismatch_error(),
+                                                                    phase_set_stats.bnd_count, phase_set_stats.bnd_switched_error_count, phase_set_stats.bnd_missmatch_error_count,switchs,mismatchs))
     out.write("%s\t%d\t%d\t%d\t%d\t%.8f\t%.8f\t%d\t%d\t%d\n" % (contig + "_total", hap_stats.get_AN50(), hap_stats.get_N50(), hap_stats.get_total_phased(), hap_stats.get_total_spanned(), hap_stats.get_switch_error(), hap_stats.get_mismatch_error(), hap_stats.get_bnd_count(), hap_stats.get_bnd_switch(), hap_stats.get_bnd_mismatch()))
     return hap_stats
 
@@ -93,11 +115,12 @@ def get_haplotype_stats(template_vcf:vcf.Reader, in_vcf:vcf.Reader, out):
             template_vcf.fetch(contig)
             template_chromo = ChromosomoHaplotype(template_vcf, contig)
             in_chromo = ChromosomoHaplotype(in_vcf, contig)
+            print(template_chromo)
             chromo_hap_stats = get_haplotype_stats_chromo(template_chromo, in_chromo, out, contig)
             hap_stats.insert_hap_stats(chromo_hap_stats)
         except Exception as e:
-            print(e)
-            continue
+            traceback.print_exc()
+        break
     out.write("%s\t%d\t%d\t%d\t%d\t%.8f\t%.8f\t%d\t%d\t%d\n" % ("total", hap_stats.get_AN50(), hap_stats.get_N50(), hap_stats.get_total_phased(), hap_stats.get_total_spanned(),hap_stats.get_switch_error(), hap_stats.get_mismatch_error(), hap_stats.get_bnd_count(), hap_stats.get_bnd_switch(), hap_stats.get_bnd_mismatch()))
 
 def main():

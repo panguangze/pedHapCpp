@@ -192,7 +192,7 @@ void VCFWriter::write_nxt_record(bcf1_t *record, std::shared_ptr<VcfRecord> resu
 
     for (i = 0; i < nsmpl; i++) {
         auto tcall = result->calls[i];
-        if (tcall->isPhased()) {
+        if (tcall->isPhased() || tcall->isHomo()) {
             gt[2*i] = bcf_gt_phased(tcall->allele1);
             gt[2*i + 1] = bcf_gt_phased(tcall->allele2);
         } else {

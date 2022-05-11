@@ -122,6 +122,8 @@ public:
             auto call = new Call();
             call->allele1 = bcf_gt_allele(ptr[0]);
             call->allele2 = bcf_gt_allele(ptr[1]);
+            if(call->allele1 == -1) call->allele1 = 0;
+            if(call->allele2 == -1) call->allele2 = 0;
             p_ptr == nullptr || *p_ptr <=0 ? call->block_id = 0 : call->block_id = *p_ptr;
             call->pos = buffer->pos;
             result->calls.push_back(call);

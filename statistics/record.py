@@ -24,7 +24,7 @@ class Record:
         self.hap = gt0
         self.ps = PS
         self.idx = idx
-        if not rec.is_snp:
+        if 'SVLEN' in rec.INFO:
             self.bnd = 1
     
         
@@ -139,9 +139,12 @@ class ChromosomoHaplotype:
             if het != 1:        # not het loci
                 continue
             PS_fix = 0
+            if rec.POS == 786273:
+                m = 33
             if rec.samples[0].phased:
                 fmt = rec.FORMAT.split(':')
                 if 'PS' in fmt:
+                    # PS_fix = 1
                     PS = rec.samples[0]['PS']
                     if PS in ps_label_fix.keys():
                         PS_fix = ps_label_fix[PS]
