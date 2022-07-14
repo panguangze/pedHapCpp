@@ -235,7 +235,7 @@ void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>
     auto ccall = result->calls[cidx];
     auto pcall = result->calls[pidx];
 
-    if(record->pos == 66259711) {
+    if(record->pos == 137015) {
         int tmp = 0;
     }
 
@@ -243,7 +243,7 @@ void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>
         *conflictFlag = 0;
         return;
     }
-    if (pcall->isHomo()) {
+    if (pcall->isHomo() || !pcall->isPhased()) {
         return;
     }
 //    auto pcall = result->calls[pidx];

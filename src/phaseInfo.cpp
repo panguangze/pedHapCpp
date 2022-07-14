@@ -26,10 +26,10 @@ void PInfo::init_blocks(std::vector<int>& confilict_poses) {
     for(auto it: blocks) {
         int block_id = it.first;
         int side = it.second;
-        if (P_ENSURE_BLOCK !=0 && block_id == P_ENSURE_BLOCK && P_ENSURE_SIDE == 0) {
-            block_reverses[block_id] = false;
-            continue;
-        }
+//        if (P_ENSURE_BLOCK !=0 && block_id == P_ENSURE_BLOCK && P_ENSURE_SIDE == 0) {
+//            block_reverses[block_id] = false;
+//            continue;
+//        }
         if (block_id == infoId) continue;
         auto v0 = (float)side0_support[block_id]->size();
         auto v1 = (float)side1_support[block_id]->size();
