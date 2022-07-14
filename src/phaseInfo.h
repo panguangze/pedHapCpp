@@ -13,6 +13,8 @@ extern float T1;
 extern float T2;
 extern int P_ENSURE_BLOCK;
 extern int P_ENSURE_SIDE;
+extern int CORRECT_SCORE;
+extern int ERROR_SCORE;
 class PInfo{
 public:
 //    std::unordered_map<int,int> covered_blocks;
@@ -35,6 +37,9 @@ public:
     std::unordered_map<int, bool> blocks_reverse_info;
     std::vector<int> uncertain_blocks;
     std::vector<int> confilict_poses;
+    std::unordered_map<int, std::vector<int>*> side0_support;
+    std::unordered_map<int, std::vector<int>*> side1_support;
+//    std::unordered_map<int, std::vector<int>*> root_leaves;
 public:
     // Constructor to create and
     // initialize sets of n items
@@ -43,6 +48,15 @@ public:
     bool n_reverse_info(int block_id) {
         if(blocks_reverse_info.find(block_id) == blocks_reverse_info.end()) return false;
         return blocks_reverse_info[block_id];
+    }
+
+    void flip(int x) {
+        auto root = parent[x];
+        for (auto item : parent) {
+            if(item.second == root) {
+                blocks_reverse_info[item.first] = !blocks_reverse_info[item.first];
+            }
+        }
     }
 
     void add_read(PInfo* pinfo){
@@ -57,15 +71,42 @@ public:
                 pinfo->block_reverses[it.first] = !pinfo->block_reverses[it.first];
             }
         }
-
+        auto prev_block_id = first_block;
         for(auto blk_id : pinfo->certain_blocks) {
+            if (side0_support.find(blk_id) == side0_support.end()) {
+//                blocks.emplace(b_ps, 1);
+                side0_support[blk_id] = new std::vector<int>();
+                side1_support[blk_id] = new std::vector<int>();
+                side0_support[blk_id] = pinfo->side0_support[blk_id];
+                side1_support[blk_id] = pinfo->side1_support[blk_id];
+            }
             auto r = pinfo->block_reverses[blk_id];
 //            if (parent.find(b_id) == parent.end()) {
 //                this->parent[b_id] = b_id;
 //                this->rank[b_id] = 1;
 //            }
+            if (blk_id != prev_block_id && blk_id > 0) {
+                if(find(blk_id) != -1) {
+                    // if current max and two flip not equal, flip all origin
+                    if (blocks_reverse_info[blk_id] != r) {
+                        auto origin_side0_size = side0_support[blk_id]->size();
+                        auto origin_side1_size = side1_support[blk_id]->size();
+                        auto current_side0_size = pinfo->side0_support[blk_id]->size();
+                        auto current_side1_size = pinfo->side1_support[blk_id]->size();
+
+                        auto origin_max = origin_side0_size > origin_side1_size ? origin_side0_size : origin_side1_size;
+                        auto origin_min = origin_side0_size < origin_side1_size ? origin_side0_size : origin_side1_size;
+                        auto current_max = current_side0_size > current_side1_size ? current_side0_size : current_side1_size;
+                        auto current_min = current_side0_size < current_side1_size ? current_side0_size : current_side1_size;
+                        if (CORRECT_SCORE * origin_max - ERROR_SCORE * origin_min < CORRECT_SCORE * current_max - ERROR_SCORE * current_min) {
+                            flip(blk_id);
+                        }
+                    }
+                }
+            }
             this->blocks_reverse_info.emplace(blk_id, r);
-            Union(blk_id, first_block);
+            Union(blk_id, prev_block_id);
+            prev_block_id = blk_id;
         }
     }
 
@@ -128,6 +169,7 @@ public:
             parent[yset] = xset;
             rank[xset] = rank[xset] + 1;
         }
+
     }
 };
 

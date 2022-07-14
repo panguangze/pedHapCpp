@@ -20,7 +20,9 @@ public:
     uint variant_count;         //variant no to phase
     uint sample_count;
     std::vector<int> mendel_cs;
-    std::vector<int> mendel_pass;
+    std::vector<int> mendel_passc;
+    std::vector<int> mendel_passf;
+    std::vector<int> mendel_passm;
     std::vector<std::shared_ptr<VcfRecord>> results_for_variant;
     std::set<int> conflicts1;
     std::set<int> conflicts2;
@@ -29,10 +31,10 @@ public:
     ~ChromoPhaser() = default;
     void correct_conflict(int idx);
     void add_result(const std::shared_ptr<VcfRecord>& result);
-    void phase_with_hete(int idx1, int idx2, int side);
-    void phase_with_homo(int idx1, int idx2, int side);
-    bool check_mendel(int idx1, int idx2, int idx3);
-    void extend(int idx, InfoSet& infoSet, int side);
+    void phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSet);
+    void phase_with_homo(int idx1, int idx2, int side, InfoSet* infoSet);
+    void check_mendel(int idx1, int idx2, int idx3);
+    void extend(int idx, InfoSet* infoSet, int side);
     inline bool is_x() const {
         return chr_name.find('x') != std::string::npos || chr_name.find('X') != std::string::npos;
     }

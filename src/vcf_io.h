@@ -9,10 +9,13 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <fstream>
 #include "htslib/tbx.h"
 #include "results.h"
 #include "type.h"
-
+#include "util.h"
+extern bool IS_DEBUG;
+extern int MIN_SNP_RECOM;
 enum format_n {
     GT, PS
 };
@@ -30,6 +33,10 @@ public:
     hts_itr_t *iter;
     tbx_t *tbx_index;
     kstring_t tmp;
+    std::vector<std::vector<std::string>> up_to_down;
+    std::vector<std::vector<std::string>> down_to_up;
+    std::unordered_map<std::string, int>* sample_to_idx;
+    uint sample_count;
 
     bcf1_t *buffer;
 
@@ -122,8 +129,8 @@ public:
             auto call = new Call();
             call->allele1 = bcf_gt_allele(ptr[0]);
             call->allele2 = bcf_gt_allele(ptr[1]);
-            if(call->allele1 == -1) call->allele1 = 0;
-            if(call->allele2 == -1) call->allele2 = 0;
+//            if(call->allele1 == -1) call->allele1 = 0;
+//            if(call->allele2 == -1) call->allele2 = 0;
             p_ptr == nullptr || *p_ptr <=0 ? call->block_id = 0 : call->block_id = *p_ptr;
             call->pos = buffer->pos;
             result->calls.push_back(call);
@@ -149,23 +156,29 @@ class VCFWriter {
 private:
     bcf_hdr_t *header;
     htsFile *fp;
+    std::ofstream debugFile;
     int sample_count;
     std::map<format_n, const char *> FormatN;
     int ngt;
     int *gt;
     int *ps;
+//    std::vector<long> dup_region;
 
 private:
     void header_init();
 
 public:
-    VCFWriter(const bcf_hdr_t *hdr, const char *outfile);
+    VCFWriter(const bcf_hdr_t *hdr, const char *outfile, const char *reconFile);
 
     ~VCFWriter();
-
+    std::vector<std::string> extractAltRef(char *als);
     void write_nxt_record(bcf1_t *record, std::shared_ptr<VcfRecord>, std::vector<int>& blk_no);
-
+    void write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>& result, int cidx, int pidx, int allele_idx, int *conflictFlag, int *conflictCount, std::string& recom_content, std::vector<std::string> & dup_region);
+    void write_nxt_record_debug(bcf1_t *record, std::shared_ptr<VcfRecord> result, std::vector<int>& ps_nos, int *conflictFlag, std::vector<std::string> & dup_region);
     void write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phaser, VCFReader &frvcf);
+    std::vector<std::string> parse_segdup(std::string contig);
+
+    std::string segdup_file;
 };
 
 
