@@ -501,61 +501,67 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                             int *ends = nullptr;
                             int end_n = 0;
                             bcf_get_info_int32(header, record, "END", &ends, &end_n);
+                            line.append("\n");
+                            line.append(std::to_string(result->pos));
+                            line.append("_");
+                            line.append(std::to_string(result->calls[0]->allele1));
+                            line.append("|");
+                            line.append(std::to_string(result->calls[0]->allele2));
+                            line.append("_");
+                            line.append(std::to_string(result->calls[1]->allele1));
+                            line.append("|");
+                            line.append(std::to_string(result->calls[1]->allele2));
+                            line.append("_conflict_");
                             if (check_contains(dup_region, record->pos, *ends)) {
-                                line.append("\n");
-                                line.append(std::to_string(result->pos));
-                                line.append("_");
-                                line.append(std::to_string(result->calls[0]->allele1));
-                                line.append("|");
-                                line.append(std::to_string(result->calls[0]->allele2));
-                                line.append("_");
-                                line.append(std::to_string(result->calls[1]->allele1));
-                                line.append("|");
-                                line.append(std::to_string(result->calls[1]->allele2));
-                                line.append("_conflict_");
                                 line.append("NAHR");
-                                sample_name2recom[it[1]].append(line);
+                            } else {
+                                line.append("UNNAHR");
                             }
+                            sample_name2recom[it[1]].append(line);
                             free(ends);
                         } else if (result->calls[0]->isPhased() && result->calls[0]->allele2 == 1) {
                             int *ends = nullptr;
                             int end_n = 0;
                             bcf_get_info_int32(header, record, "END", &ends, &end_n);
+                            line.append("\n");
+                            line.append(std::to_string(result->pos));
+                            line.append("_");
+                            line.append(std::to_string(result->calls[0]->allele1));
+                            line.append("|");
+                            line.append(std::to_string(result->calls[0]->allele2));
+                            line.append("_");
+                            line.append(std::to_string(result->calls[2]->allele1));
+                            line.append("|");
+                            line.append(std::to_string(result->calls[2]->allele2));
+                            line.append("_conflict_");
                             if (check_contains(dup_region, record->pos, *ends)) {
-                                line.append("\n");
-                                line.append(std::to_string(result->pos));
-                                line.append("_");
-                                line.append(std::to_string(result->calls[0]->allele1));
-                                line.append("|");
-                                line.append(std::to_string(result->calls[0]->allele2));
-                                line.append("_");
-                                line.append(std::to_string(result->calls[2]->allele1));
-                                line.append("|");
-                                line.append(std::to_string(result->calls[2]->allele2));
-                                line.append("_conflict_");
                                 line.append("NAHR");
-                                sample_name2recom[it[2]].append(line);
+                            } else {
+                                line.append("UNNAHR");
                             }
+                            sample_name2recom[it[2]].append(line);
                             free(ends);
                         } else if(!result->calls[0]->isPhased() && !result->calls[0]->isHomo()) {
                             int *ends = nullptr;
                             int end_n = 0;
                             bcf_get_info_int32(header, record, "END", &ends, &end_n);
+                            line.append("\n");
+                            line.append(std::to_string(result->pos));
+                            line.append("_");
+                            line.append(std::to_string(result->calls[0]->allele1));
+                            line.append("\\");
+                            line.append(std::to_string(result->calls[0]->allele2));
+                            line.append("_");
+                            line.append(std::to_string(result->calls[2]->allele1));
+                            line.append("|");
+                            line.append(std::to_string(result->calls[2]->allele2));
+                            line.append("_conflict_");
                             if (check_contains(dup_region, record->pos, *ends)) {
-                                line.append("\n");
-                                line.append(std::to_string(result->pos));
-                                line.append("_");
-                                line.append(std::to_string(result->calls[0]->allele1));
-                                line.append("\\");
-                                line.append(std::to_string(result->calls[0]->allele2));
-                                line.append("_");
-                                line.append(std::to_string(result->calls[2]->allele1));
-                                line.append("|");
-                                line.append(std::to_string(result->calls[2]->allele2));
-                                line.append("_conflict_");
                                 line.append("NAHR");
-                                sample_name2recom[it[0]].append(line);
+                            } else {
+                                line.append("UNNAHR");
                             }
+                            sample_name2recom[it[0]].append(line);
                             free(ends);
                         }
                         continue;
