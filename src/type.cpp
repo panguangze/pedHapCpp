@@ -163,7 +163,7 @@ void ChromoPhaser::phase_with_homo(int idx1, int idx2, int side, InfoSet* infoSe
         if(s1_call->block_id == 11) {
             int mmm = 33;
         }
-        if (s1_call->isHomo() || !s2_call->isHomo()) continue;
+        if (s1_call->isHomo() || (!s2_call->isHomo() )) continue;
 //        check mendel?
 //        if ((s1_call->allele1 != s2_call->allele1 && s1_call->allele1 != s2_call->allele2) &&
 //                (s1_call->allele2 != s2_call->allele1 && s1_call->allele2 != s2_call->allele2))

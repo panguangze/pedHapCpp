@@ -243,7 +243,7 @@ void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>
         *conflictFlag = 0;
         return;
     }
-    if (pcall->isHomo() || !pcall->isPhased()) {
+    if (pcall->isHomo() || pcall->block_id != 1) {
         return;
     }
 //    auto pcall = result->calls[pidx];
@@ -481,9 +481,13 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
 
     for (uint idx = 0; idx < chromo_phaser->variant_count; idx++)
     {
+
         trio_idx = 0;
         frvcf.get_next_record(record);
         auto result = chromo_phaser->results_for_variant[idx];
+        if (result->pos == 90234140) {
+            int tmp = 99;
+        }
         bcf_translate(this->header, frvcf.header, record);
         std::vector<int> ps_nos;
         for (auto tcall : result->calls) {
