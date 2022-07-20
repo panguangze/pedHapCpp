@@ -132,7 +132,7 @@ void Phaser::phasing_by_chrom() const
     int s_idx=-1, f_idx=-1, m_idx=-1;
     bool is_child_male;
     int i = 0;
-    while (i != 1) {
+    while (i != 2) {
         InfoSet* hete_reads;
         InfoSet* home_reads;
         for(auto it: get_up_to_down()) {
@@ -159,9 +159,9 @@ void Phaser::phasing_by_chrom() const
                 chromoPhaser->phase_with_hete(s_idx, f_idx, 0,hete_reads);
                 chromoPhaser->phase_with_hete(s_idx, m_idx, 1,hete_reads);
                 chromoPhaser->extend(s_idx,hete_reads,0);
-                chromoPhaser->phase_with_homo(s_idx, f_idx,0, home_reads);
-                chromoPhaser->phase_with_homo(s_idx, m_idx,1, home_reads);
-                chromoPhaser->extend(s_idx,home_reads,0);
+//                chromoPhaser->phase_with_homo(s_idx, f_idx,0, home_reads);
+//                chromoPhaser->phase_with_homo(s_idx, m_idx,1, home_reads);
+//                chromoPhaser->extend(s_idx,home_reads,0);
                 chromoPhaser->correct_conflict(s_idx);
             }
 //            chromoPhaser->extend(s_idx,hete_reads,0);
@@ -183,8 +183,8 @@ void Phaser::phasing_by_chrom() const
                 home_reads = new InfoSet();
                 chromoPhaser->phase_with_hete(f_idx, s_idx, 0, hete_reads);
                 chromoPhaser->extend(f_idx,hete_reads,0);
-                chromoPhaser->phase_with_homo(f_idx, s_idx,0, home_reads);
-                chromoPhaser->extend(f_idx,home_reads,0);
+//                chromoPhaser->phase_with_homo(f_idx, s_idx,0, home_reads);
+//                chromoPhaser->extend(f_idx,home_reads,0);
                 free(hete_reads);
                 free(home_reads);
             }
@@ -194,8 +194,8 @@ void Phaser::phasing_by_chrom() const
                 home_reads = new InfoSet();
                 chromoPhaser->phase_with_hete(m_idx, s_idx, 0, hete_reads);
                 chromoPhaser->extend(m_idx,hete_reads,0);
-                chromoPhaser->phase_with_homo(m_idx, s_idx,0, home_reads);
-                chromoPhaser->extend(m_idx,home_reads,0);
+//                chromoPhaser->phase_with_homo(m_idx, s_idx,0, home_reads);
+//                chromoPhaser->extend(m_idx,home_reads,0);
                 free(hete_reads);
                 free(home_reads);
             }
@@ -204,7 +204,7 @@ void Phaser::phasing_by_chrom() const
     }
 
     i = 0;
-    while (i != 1) {
+    while (i !=0) {
         InfoSet* hete_reads;
         InfoSet* home_reads;
         for(auto it: get_up_to_down()) {
@@ -231,9 +231,9 @@ void Phaser::phasing_by_chrom() const
                 chromoPhaser->phase_with_hete(s_idx, f_idx, 0,hete_reads);
                 chromoPhaser->phase_with_hete(s_idx, m_idx, 1,hete_reads);
                 chromoPhaser->extend(s_idx,hete_reads,0);
-                chromoPhaser->phase_with_homo(s_idx, f_idx,0, home_reads);
-                chromoPhaser->phase_with_homo(s_idx, m_idx,1, home_reads);
-                chromoPhaser->extend(s_idx,home_reads,0);
+//                chromoPhaser->phase_with_homo(s_idx, f_idx,0, home_reads);
+//                chromoPhaser->phase_with_homo(s_idx, m_idx,1, home_reads);
+//                chromoPhaser->extend(s_idx,home_reads,0);
                 chromoPhaser->correct_conflict(s_idx);
             }
 //            chromoPhaser->extend(s_idx,hete_reads,0);
@@ -255,8 +255,8 @@ void Phaser::phasing_by_chrom() const
                 home_reads = new InfoSet();
                 chromoPhaser->phase_with_hete(f_idx, s_idx, 0, hete_reads);
                 chromoPhaser->extend(f_idx,hete_reads,0);
-                chromoPhaser->phase_with_homo(f_idx, s_idx,0, home_reads);
-                chromoPhaser->extend(f_idx,home_reads,0);
+//                chromoPhaser->phase_with_homo(f_idx, s_idx,0, home_reads);
+//                chromoPhaser->extend(f_idx,home_reads,0);
                 free(hete_reads);
                 free(home_reads);
             }
@@ -264,10 +264,10 @@ void Phaser::phasing_by_chrom() const
                 if (chromoPhaser->is_y()) continue;
                 hete_reads = new InfoSet();
                 home_reads = new InfoSet();
-                chromoPhaser->phase_with_hete(m_idx, s_idx, 0, hete_reads);
+                chromoPhaser->phase_with_hete(m_idx, s_idx, 1, hete_reads);
                 chromoPhaser->extend(m_idx,hete_reads,0);
-                chromoPhaser->phase_with_homo(m_idx, s_idx,0, home_reads);
-                chromoPhaser->extend(m_idx,home_reads,0);
+//                chromoPhaser->phase_with_homo(m_idx, s_idx,0, home_reads);
+//                chromoPhaser->extend(m_idx,home_reads,0);
                 free(hete_reads);
                 free(home_reads);
             }

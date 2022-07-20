@@ -39,32 +39,54 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSe
 //    auto idx2_phase_block = this->phased_blocks_info[idx2];
     std::unordered_map<uint, PInfo*> reads;
     auto tmp = (idx1 == 0 && idx2 == 1) or (idx1 == 1 && idx2 == 0) ? this->mendel_passf : this->mendel_passm;
+    int current_link_block_id = 2;
+    int prev_s2_block_id = 0;
     for(int mendel_pas : tmp) {
         auto result = results_for_variant[mendel_pas];
-        if (result->pos == 545633) {
+        if (result->pos == 69105) {
             int tmp3=1;
         }
 //        if(result->bnd) continue;
         Call* s1_call = result->calls[idx1];
         Call* s2_call = result->calls[idx2];
-        if( s1_call->isHomo() || s2_call->isHomo() || !s2_call->isPhased()) continue;
+        if( s1_call->isHomo() || (!s2_call->isHomo() and !s2_call->isPhased())) continue;
+        if ((!s2_call->isHomo() && s2_call->block_id != prev_s2_block_id)) {
+//            if (prev_s2_block_id == 0) continue;
+            if (prev_s2_block_id != 0) {
+                current_link_block_id = current_link_block_id + 1;
+            }
+            prev_s2_block_id = s2_call->block_id;
+        }
+//        if( s1_call->isHomo() || s2_call->isHomo() || !s2_call->isPhased()) continue;
+
 //        check mendel?
 //        if(s1_call->allele1 != s2_call->allele1 && s1_call->allele1 != s2_call->allele2 &&
 //            s1_call->allele2 != s2_call->allele1 && s1_call->allele2 != s2_call->allele2)
 //            continue;
-        if(reads.find(s2_call->block_id) == reads.end()) {
-            auto read = new PInfo(-s2_call->block_id);
-            reads[s2_call->block_id] = read;
+//        if (s2_call->isHomo())
+        if(reads.find(current_link_block_id) == reads.end()) {
+            auto read = new PInfo(-current_link_block_id);
+            reads[current_link_block_id] = read;
         }
 
         if(s1_call->isPhased()) {
             auto o_side = side;
-            if(s1_call->allele1 == s2_call->allele2 || s1_call->allele2 == s2_call->allele1) {
-                o_side = abs(side -1);
+            if (s2_call->isHomo()) {
+                if(s1_call->allele1 == s2_call->allele1) {
+                    o_side = abs(side);
+                } else {
+                    o_side = abs(side - 1);
+                }
+                reads[current_link_block_id]->set_covered_call(s1_call->block_id, o_side, mendel_pas);
             } else {
-                o_side = abs(side);
+                if(s1_call->allele1 == s2_call->allele2 || s1_call->allele2 == s2_call->allele1) {
+                    o_side = abs(side -1);
+                } else {
+                    o_side = abs(side);
+                }
+                reads[current_link_block_id]->set_covered_call(s1_call->block_id, o_side, mendel_pas);
             }
-            reads[s2_call->block_id]->set_covered_call(s1_call->block_id, o_side, mendel_pas);
+//            auto o_side = side;
         } else {
 //            if ((s1_call->allele1 != s2_call->allele2 && s1_call->allele1 != s2_call->allele1) &&
 //                    (s1_call->allele2 != s2_call->allele2 && s1_call->allele2 != s2_call->allele1))
@@ -85,7 +107,7 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSe
 //    InfoSet hete_reads;
     auto s = reads.size();
     for(auto it: reads) {
-        if (it.first == 2) {
+        if (it.first == 6) {
             auto mmm = 33;
         }
         infoSet->add_read(it.second);
@@ -113,6 +135,11 @@ void ChromoPhaser::extend(int idx, InfoSet* infoSet, int side) {
         Call* s1_call = result->calls[idx];
         if (s1_call->isHomo()) continue;
         if (s1_call->block_id == 0) continue;
+        if (result->pos == 69710) {
+            int tmp = 2;
+            auto v = infoSet->blocks_reverse_info.find(69538) == infoSet->blocks_reverse_info.end();
+            int tp = 2;
+        }
         auto new_block_id = infoSet->find(s1_call->block_id);
         auto n_r = infoSet->blocks_reverse_info[s1_call->block_id];
         if (new_block_id == -1) {
@@ -130,7 +157,7 @@ void ChromoPhaser::extend(int idx, InfoSet* infoSet, int side) {
                 finalize_new_block_ids.emplace(new_block_id, f_new_id);
             }
         }
-        s1_call->block_id = f_new_id;
+        s1_call->block_id = f_new_id + 1;
         if(n_r){
             auto t = s1_call->allele1;
             s1_call->allele1 = s1_call->allele2;

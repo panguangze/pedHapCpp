@@ -39,6 +39,7 @@ public:
     std::vector<int> confilict_poses;
     std::unordered_map<int, std::vector<int>*> side0_support;
     std::unordered_map<int, std::vector<int>*> side1_support;
+    std::vector<int> prev_link_heads;
 //    std::unordered_map<int, std::vector<int>*> root_leaves;
 public:
     // Constructor to create and
@@ -63,6 +64,7 @@ public:
         pinfo->init_blocks(confilict_poses);
 //        ensure block is better
         auto first_block = pinfo->certain_blocks[0];
+        prev_link_heads.push_back(first_block) ;
         auto first_reverse = pinfo->block_reverses[first_block];
 //        if first block found and conflict exists.
         if(this->blocks_reverse_info.find(first_block) != blocks_reverse_info.end()
@@ -85,10 +87,10 @@ public:
 //                this->parent[b_id] = b_id;
 //                this->rank[b_id] = 1;
 //            }
-            if (blk_id != prev_block_id && blk_id > 0) {
+            if (blk_id > 0) {
                 if(find(blk_id) != -1) {
                     // if current max and two flip not equal, flip all origin
-                    if (blocks_reverse_info[blk_id] != r) {
+                    if (blocks_reverse_info.find(blk_id) != blocks_reverse_info.end() && blocks_reverse_info[blk_id] != r) {
                         auto origin_side0_size = side0_support[blk_id]->size();
                         auto origin_side1_size = side1_support[blk_id]->size();
                         auto current_side0_size = pinfo->side0_support[blk_id]->size();
@@ -98,15 +100,28 @@ public:
                         auto origin_min = origin_side0_size < origin_side1_size ? origin_side0_size : origin_side1_size;
                         auto current_max = current_side0_size > current_side1_size ? current_side0_size : current_side1_size;
                         auto current_min = current_side0_size < current_side1_size ? current_side0_size : current_side1_size;
-                        if (CORRECT_SCORE * origin_max - ERROR_SCORE * origin_min < CORRECT_SCORE * current_max - ERROR_SCORE * current_min) {
+                        if (std::find(prev_link_heads.begin(), prev_link_heads.end(), blk_id) != prev_link_heads.end()) {
+//                            blocks_reverse_info.emplace(blk_id, r);
                             flip(blk_id);
+                        } else {
+                            if (CORRECT_SCORE * origin_max - ERROR_SCORE * origin_min < CORRECT_SCORE * current_max - ERROR_SCORE * current_min) {
+//                            flip(blk_id);
+                                blocks_reverse_info.emplace(blk_id, r);
+                            }
                         }
+                        Union(blk_id, prev_block_id);
+                        prev_block_id = blk_id;
+                    } else {
+                        blocks_reverse_info.emplace(blk_id, r);
+                        Union(blk_id, prev_block_id);
+                        prev_block_id = blk_id;
                     }
+                } else {
+                    this->blocks_reverse_info.emplace(blk_id, r);
+                    Union(blk_id, prev_block_id);
+                    prev_block_id = blk_id;
                 }
             }
-            this->blocks_reverse_info.emplace(blk_id, r);
-            Union(blk_id, prev_block_id);
-            prev_block_id = blk_id;
         }
     }
 

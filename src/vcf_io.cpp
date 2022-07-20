@@ -260,7 +260,7 @@ void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>
     }
     std::string line;
 //    line.append("\t");
-    line.append(std::to_string(record->pos));
+    line.append(std::to_string(record->pos+1));
     if (c1 != p1 && c1 == p2) {
         if (*conflictFlag == 0) {
             recom_content.append("\n");
@@ -506,7 +506,7 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                             int end_n = 0;
                             bcf_get_info_int32(header, record, "END", &ends, &end_n);
                             line.append("\n");
-                            line.append(std::to_string(result->pos));
+                            line.append(std::to_string(result->pos+1));
                             line.append("_");
                             line.append(std::to_string(result->calls[0]->allele1));
                             line.append("|");
@@ -528,7 +528,7 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                             int end_n = 0;
                             bcf_get_info_int32(header, record, "END", &ends, &end_n);
                             line.append("\n");
-                            line.append(std::to_string(result->pos));
+                            line.append(std::to_string(result->pos+1));
                             line.append("_");
                             line.append(std::to_string(result->calls[0]->allele1));
                             line.append("|");
@@ -550,7 +550,7 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                             int end_n = 0;
                             bcf_get_info_int32(header, record, "END", &ends, &end_n);
                             line.append("\n");
-                            line.append(std::to_string(result->pos));
+                            line.append(std::to_string(result->pos+1));
                             line.append("_");
                             line.append(std::to_string(result->calls[0]->allele1));
                             line.append("\\");
