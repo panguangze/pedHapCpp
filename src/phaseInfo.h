@@ -22,8 +22,8 @@ public:
     std::unordered_map<int,bool> block_reverses;
     std::vector<int> uncertain_blocks;
     std::vector<int> certain_blocks;
-    std::unordered_map<int, std::vector<int>*> side0_support;
-    std::unordered_map<int, std::vector<int>*> side1_support;
+    std::map<int, std::vector<int>*> side0_support;
+    std::map<int, std::vector<int>*> side1_support;
     int infoId;
     explicit PInfo(int infoId);
     void set_covered_call(int ps, int side, int pos);
@@ -60,17 +60,23 @@ public:
         }
     }
 
-    void add_read(PInfo* pinfo){
+    void interact(InfoSet* other) {
+
+    }
+
+    void add_read(PInfo* pinfo, bool is_homo){
         pinfo->init_blocks(confilict_poses);
 //        ensure block is better
         auto first_block = pinfo->certain_blocks[0];
         prev_link_heads.push_back(first_block) ;
         auto first_reverse = pinfo->block_reverses[first_block];
 //        if first block found and conflict exists.
-        if(this->blocks_reverse_info.find(first_block) != blocks_reverse_info.end()
-                    && first_reverse != this->blocks_reverse_info[first_block]) {
-            for(auto it: pinfo->blocks) {
-                pinfo->block_reverses[it.first] = !pinfo->block_reverses[it.first];
+        if (!is_homo) {
+            if(this->blocks_reverse_info.find(first_block) != blocks_reverse_info.end()
+               && first_reverse != this->blocks_reverse_info[first_block]) {
+                for(auto it: pinfo->blocks) {
+                    pinfo->block_reverses[it.first] = !pinfo->block_reverses[it.first];
+                }
             }
         }
         auto prev_block_id = first_block;

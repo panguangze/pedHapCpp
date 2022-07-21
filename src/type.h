@@ -33,6 +33,7 @@ public:
     void add_result(const std::shared_ptr<VcfRecord>& result);
     void phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSet);
     void phase_with_homo(int idx1, int idx2, int side, InfoSet* infoSet);
+    void phase_with_homo2(int idx1, int idx2, int side, InfoSet* infoSet);
     void check_mendel(int idx1, int idx2, int idx3);
     void extend(int idx, InfoSet* infoSet, int side);
     inline bool is_x() const {
