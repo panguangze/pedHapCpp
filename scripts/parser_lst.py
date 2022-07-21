@@ -8,7 +8,7 @@ pos = int(sys.argv[3])
 # poses_list = range(int(poses[0]), int(poses[1]) + 1)
 keep = False
 for line in lst_file.readlines():
-    line_split = line.split("\t")
+    line_split = line.split(" ")
     lst_count = int(line_split[0])
 
     for i in range(2, 2+2*lst_count + 1, 2):
