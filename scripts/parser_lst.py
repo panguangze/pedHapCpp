@@ -10,10 +10,11 @@ keep = False
 for line in lst_file.readlines():
     line_split = line.split(" ")
     lst_count = int(line_split[0])
-
-    for i in range(2, 2+2*lst_count + 1, 2):
+    # print(list(range(2, 2+2*lst_count, 2)))
+    for i in range(2, 2+2*lst_count, 2):
         if pos in range(int(line_split[i]), int(line_split[i]) + len(line_split[i+1])):
             keep = True
             break
     if keep:
         lst_out.write(line)
+        keep = False
