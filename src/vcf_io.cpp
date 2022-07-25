@@ -230,7 +230,7 @@ std::vector<std::string> VCFWriter::extractAltRef(char *als) {
 }
 
 void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>& result, int cidx, int pidx, int allele_idx,
-                                int *conflictFlag, int *conflictCount, std::string &recom_content, std::vector<std::string> &dup_region) {
+                                int *conflictFlag, int *conflictCount, std::string &recom_content, std::vector<std::string> &dup_region, uint prev_count) {
 //    int i, j,nsmpl = bcf_hdr_nsamples(header);
     auto ccall = result->calls[cidx];
     auto pcall = result->calls[pidx];
@@ -260,7 +260,9 @@ void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>
     }
     std::string line;
 //    line.append("\t");
-    line.append(std::to_string(record->pos+1));
+    line.append(std::to_string(prev_count));
+//    line.append(std::to_string(result->pos + 1));
+
     if (c1 != p1 && c1 == p2) {
         if (*conflictFlag == 0) {
             recom_content.append("\n");
@@ -444,7 +446,7 @@ void VCFWriter::write_nxt_record_debug(bcf1_t *record, std::shared_ptr<VcfRecord
 
 
 
-void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phaser, VCFReader &frvcf)
+void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phaser, VCFReader &frvcf, uint prev_count)
 {
     bcf1_t *record = bcf_init();
     frvcf.jump_to_contig(frvcf.curr_contig);
@@ -462,6 +464,7 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
     int* mConflictFlags = new int [frvcf.up_to_down.size()];
     int* fConflictCounts = new int [frvcf.up_to_down.size()];
     int* mConflictCounts = new int [frvcf.up_to_down.size()];
+//    int* prev2Snp = new int [frvcf.up_to_down.size()];
     int trio_idx = 0;
     int s_idx=-1, f_idx=-1, m_idx=-1;
 
@@ -481,7 +484,7 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
 
     for (uint idx = 0; idx < chromo_phaser->variant_count; idx++)
     {
-
+        prev_count = prev_count + 1;
         trio_idx = 0;
         frvcf.get_next_record(record);
         auto result = chromo_phaser->results_for_variant[idx];
@@ -579,11 +582,11 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                 }
                 if (it[1] != EMPTY_ID) {
                     f_idx = (*frvcf.sample_to_idx)[it[1]];
-                    write_recom_duo(record,result,s_idx,f_idx,0,fConflictFlags+trio_idx, fConflictCounts+trio_idx, sample_name2recom[it[1]],dup_region);
+                    write_recom_duo(record,result,s_idx,f_idx,0,fConflictFlags+trio_idx, fConflictCounts+trio_idx, sample_name2recom[it[1]],dup_region, prev_count);
                 }
                 if (it[2] != EMPTY_ID) {
                     m_idx = (*frvcf.sample_to_idx)[it[2]];
-                    write_recom_duo(record,result,s_idx,m_idx,1,mConflictFlags+trio_idx, mConflictCounts+trio_idx, sample_name2recom[it[2]],dup_region);
+                    write_recom_duo(record,result,s_idx,m_idx,1,mConflictFlags+trio_idx, mConflictCounts+trio_idx, sample_name2recom[it[2]],dup_region, prev_count);
                 }
 //                write_nxt_record_debug(record, result, ps_nos, conflictFlag, dup_region);
                 trio_idx++;

@@ -55,13 +55,21 @@ int Phaser::load_contig_blocks(ChromoPhaser *chromo_phaser)
 
 void Phaser::phasing()
 {
+    auto nsmp = bcf_hdr_nsamples(this->frvcf->header);
+    uint prev_count = 0;
     for (uint rid = 0; rid < frvcf->contigs_count; rid++)
     {
-        if (!this->contigs.empty() && std::find(this->contigs.begin(), this->contigs.end(), frvcf->contigs[rid]) == this->contigs.end())
+        if (!this->contigs.empty() && std::find(this->contigs.begin(), this->contigs.end(), frvcf->contigs[rid]) == this->contigs.end()) {
+            if (frvcf->jump_to_contig(rid) != 0)
+                break;
+            auto *chromo_phaser = new ChromoPhaser(rid, frvcf->contigs[rid], nsmp);
+            load_contig_blocks(chromo_phaser);
+            prev_count = prev_count + chromo_phaser->variant_count;
             continue;
+        }
+//            continue;
         if (frvcf->jump_to_contig(rid) != 0)
             break;
-        auto nsmp = bcf_hdr_nsamples(this->frvcf->header);
         auto *chromo_phaser = new ChromoPhaser(rid, frvcf->contigs[rid], nsmp);
         this->chromoPhaser = chromo_phaser;
         std::string mess = "Reading contig " + std::string(frvcf->contigs[rid]);
@@ -70,7 +78,8 @@ void Phaser::phasing()
         std::string mess2 = "phasing haplotype for " + std::string(frvcf->contigs[rid]);
         logging(std::clog, mess2);
         phasing_by_chrom();
-        fwvcf->write_nxt_contigs(frvcf->contigs[rid].data(), chromo_phaser, *frvcf);
+        fwvcf->write_nxt_contigs(frvcf->contigs[rid].data(), chromo_phaser, *frvcf, prev_count);
+        prev_count = prev_count + chromo_phaser->variant_count;
         delete chromo_phaser;
     }
 }
@@ -132,7 +141,7 @@ void Phaser::phasing_by_chrom() const
     int s_idx=-1, f_idx=-1, m_idx=-1;
     bool is_child_male;
     int i = 0;
-    while (i != 1) {
+    while (i != 2) {
         InfoSet* hete_reads;
         InfoSet* home_reads;
         for(auto it: get_up_to_down()) {
@@ -163,7 +172,6 @@ void Phaser::phasing_by_chrom() const
 //                chromoPhaser->phase_with_homo(s_idx, m_idx,1, home_reads);
 //                chromoPhaser->extend(s_idx,home_reads,0);
             }
-                    chromoPhaser->correct_conflict(s_idx);
 
 //            chromoPhaser->extend(s_idx,hete_reads,0);
             free(hete_reads);
@@ -226,10 +234,10 @@ void Phaser::phasing_by_chrom() const
 //                chromoPhaser->phase_with_hete(s_idx, f_idx, 0,hete_reads);
 //                chromoPhaser->phase_with_hete(s_idx, m_idx, 1,hete_reads);
 //                chromoPhaser->extend(s_idx,hete_reads,0);
-//                chromoPhaser->phase_with_homo(s_idx, f_idx,0, home_reads);
-//                chromoPhaser->phase_with_homo(s_idx, m_idx,1, home_reads);
-//                chromoPhaser->extend(s_idx,home_reads,0);
-//                chromoPhaser->correct_conflict(s_idx);
+                chromoPhaser->phase_with_homo(s_idx, f_idx,0, home_reads);
+                chromoPhaser->phase_with_homo(s_idx, m_idx,1, home_reads);
+                chromoPhaser->extend(s_idx,home_reads,0);
+                chromoPhaser->correct_conflict(s_idx);
             }
 //            chromoPhaser->extend(s_idx,hete_reads,0);
             free(hete_reads);

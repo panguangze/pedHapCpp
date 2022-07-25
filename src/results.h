@@ -37,6 +37,7 @@ public:
     std::unordered_map<std::string,uint> sample_to_index;
     std::vector<Call* > calls;
     uint pos;
+    uint idx;
     std::string ID;
     std::string ref;
     std::string alts;
