@@ -72,6 +72,7 @@ void Phaser::phasing()
             break;
         auto *chromo_phaser = new ChromoPhaser(rid, frvcf->contigs[rid], nsmp);
         this->chromoPhaser = chromo_phaser;
+        this->chromoPhaser->set_prev_contig_variant_count(prev_count);
         std::string mess = "Reading contig " + std::string(frvcf->contigs[rid]);
         logging(std::clog, mess);
         load_contig_blocks(chromo_phaser);
@@ -141,7 +142,7 @@ void Phaser::phasing_by_chrom() const
     int s_idx=-1, f_idx=-1, m_idx=-1;
     bool is_child_male;
     int i = 0;
-    while (i != 2) {
+    while (i != 1) {
         InfoSet* hete_reads;
         InfoSet* home_reads;
         for(auto it: get_up_to_down()) {
@@ -190,8 +191,8 @@ void Phaser::phasing_by_chrom() const
                 if (!is_child_male && chromoPhaser->is_y()) continue;
                 hete_reads = new InfoSet();
                 home_reads = new InfoSet();
-                chromoPhaser->phase_with_hete(f_idx, s_idx, 0, hete_reads);
-                chromoPhaser->extend(f_idx,hete_reads,0);
+//                chromoPhaser->phase_with_hete(f_idx, s_idx, 0, hete_reads);
+//                chromoPhaser->extend(f_idx,hete_reads,0);
 //                chromoPhaser->phase_with_homo(f_idx, s_idx,0, home_reads);
 //                chromoPhaser->extend(f_idx,home_reads,0);
                 free(hete_reads);
@@ -201,8 +202,8 @@ void Phaser::phasing_by_chrom() const
                 if (chromoPhaser->is_y()) continue;
                 hete_reads = new InfoSet();
                 home_reads = new InfoSet();
-                chromoPhaser->phase_with_hete(m_idx, s_idx, 0, hete_reads);
-                chromoPhaser->extend(m_idx,hete_reads,0);
+//                chromoPhaser->phase_with_hete(m_idx, s_idx, 0, hete_reads);
+//                chromoPhaser->extend(m_idx,hete_reads,0);
 //                chromoPhaser->phase_with_homo(m_idx, s_idx,0, home_reads);
 //                chromoPhaser->extend(m_idx,home_reads,0);
                 free(hete_reads);

@@ -6,6 +6,7 @@
 #include <string>
 #include <ctime>
 #include <vector>
+#include "type.h"
 
 
 void logging(std::ostream &stream, const std::string & message);

@@ -77,6 +77,9 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSe
 //            s1_call->allele2 != s2_call->allele1 && s1_call->allele2 != s2_call->allele2)
 //            continue;
 //        if (s2_call->isHomo())
+        if (current_link_block_id == 5) {
+            auto mm = 3;
+        }
         if(reads.find(current_link_block_id) == reads.end()) {
             auto read = new PInfo(-current_link_block_id);
             reads[current_link_block_id] = read;
@@ -123,6 +126,10 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSe
         if (it.first == 2) {
             auto mmm = 33;
         }
+        if (it.first == 5) {
+            int lkk = 9;
+        }
+        extract_lst(it.first, idx1, it.second, results_for_variant, this->prev_contig_variant_count);
         infoSet->add_read(it.second, false);
     }
 //    extend(idx1, hete_reads, side);
@@ -405,5 +412,75 @@ void ChromoPhaser::check_mendel(int idx1, int idx2, int idx3) {
             }else
                 mendel_cs.push_back(i);
         }
+    }
+}
+
+void extract_lst(int pos,int idx, PInfo* it,std::vector<std::shared_ptr<VcfRecord>>& result_for_variant, int prev_count) {
+    std::string lst1;
+    lst1.append(" "+std::to_string(pos));
+    if (pos == 21056) {
+        int lkk = 9;
+    }
+    int lst1_count = 0;
+    int l1_variant_count = 0;
+    for (auto item: it->side0_support) {
+        auto prev_pos = 0;
+        std::string prev_str;
+        if(item.second == nullptr) continue;
+        if (item.second->empty()) continue;
+        l1_variant_count = l1_variant_count + item.second->size();
+        for (auto i : *(item).second){
+            if (i - prev_pos != 1) {
+                lst1.append(prev_str + " ");
+                prev_str = "";
+                prev_str.append(std::to_string(prev_count + i)+" ");
+                lst1_count++;
+            }
+            prev_pos = i;
+            auto call = result_for_variant[prev_pos]->calls[idx];
+            prev_str.append(std::to_string(call->allele1));
+        }
+        lst1.append(prev_str);
+    }
+    lst1.append(" "+ std::string(l1_variant_count,'G')+" "+ std::to_string(60));
+
+
+
+    std::string lst2;
+    int l2_variant_count = 0;
+    lst2.append(" "+std::to_string(pos));
+    int lst2_count = 0;
+    for (auto item: it->side1_support) {
+        auto prev_pos = 0;
+        std::string prev_str;
+        if(item.second == nullptr) continue;
+        if (item.second->empty()) continue;
+        l2_variant_count = l2_variant_count + item.second->size();
+        for (auto i : *(item).second){
+            if (i - prev_pos != 1) {
+                lst2.append(prev_str + " ");
+                prev_str = "";
+                prev_str.append(std::to_string( prev_count + i)+" ");
+                lst2_count++;
+            }
+            prev_pos = i;
+            auto call = result_for_variant[prev_pos]->calls[idx];
+            prev_str.append(std::to_string(call->allele2));
+        }
+        lst2.append(prev_str);
+//        lst2.append(" "+ std::string(item.second->size(),'G')+" "+ std::to_string(60));
+    }
+    lst2.append(" "+ std::string(l2_variant_count,'G')+" "+ std::to_string(60));
+
+//    if (lst1_count != 0)
+//        std::cout<<lst1_count<<" "<<lst1<<std::endl;
+//    if (lst2_count != 0)
+//        std::cout<<lst2_count<<" "<<lst2<<std::endl;
+    if (l1_variant_count >= l2_variant_count) {
+        if (lst1_count != 0)
+            std::cout<<lst1_count<<" "<<lst1<<std::endl;
+    } else {
+        if (lst2_count != 0)
+            std::cout<<lst2_count<<" "<<lst2<<std::endl;
     }
 }
