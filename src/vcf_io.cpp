@@ -260,8 +260,8 @@ void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>
     }
     std::string line;
 //    line.append("\t");
-    line.append(std::to_string(prev_count));
-//    line.append(std::to_string(result->pos + 1));
+//    line.append(std::to_string(prev_count));
+    line.append(std::to_string(result->pos + 1));
 
     if (c1 != p1 && c1 == p2) {
         if (*conflictFlag == 0) {

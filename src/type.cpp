@@ -47,29 +47,56 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSe
     auto tmp = (idx1 == 0 && idx2 == 1) or (idx1 == 1 && idx2 == 0) ? this->mendel_passf : this->mendel_passm;
     int current_link_block_id = 2;
     int prev_s2_block_id = 0;
+    int prev_hete_block_id = 0;
     std::unordered_map<int, int> s2_block_id2current_id;
     for(int mendel_pas : tmp) {
         auto result = results_for_variant[mendel_pas];
-        if (result->pos == 168404) {
-            int tmp3=1;
-        }
+
 //        if(result->bnd) continue;
         Call* s1_call = result->calls[idx1];
         Call* s2_call = result->calls[idx2];
-        if( s1_call->isHomo() || (!s2_call->isHomo() and !s2_call->isPhased()) || s2_call->isHomo()) continue;
-        if ((!s2_call->isHomo() && s2_call->block_id != prev_s2_block_id)) {
-            if (s2_block_id2current_id.find(s2_call->block_id) != s2_block_id2current_id.end()) {
-                current_link_block_id = s2_block_id2current_id[s2_call->block_id];
-                prev_s2_block_id = s2_call->block_id;
-            } else {
-                if (prev_s2_block_id != 0) {
-                    current_link_block_id = current_link_block_id + 1;
-                }
-                prev_s2_block_id = s2_call->block_id;
-                s2_block_id2current_id.emplace(s2_call->block_id,current_link_block_id);
-            }
-//            if (prev_s2_block_id == 0) continue;
+        if (s1_call->pos == 954918) {
+            int tmp3=1;
         }
+        if( s1_call->isHomo() || (!s2_call->isHomo() and !s2_call->isPhased()) || s2_call->isHomo()) continue;
+        if (s2_call->isHomo()) {
+            if (s2_call->block_id != prev_s2_block_id) {
+                current_link_block_id = current_link_block_id + 1;
+                prev_s2_block_id = s2_call->block_id;
+            }
+        } else {
+            if (s2_call->block_id != prev_s2_block_id) {
+                if (s2_block_id2current_id.find(s2_call->block_id) != s2_block_id2current_id.end()) {
+                    current_link_block_id = s2_block_id2current_id[s2_call->block_id];
+                    prev_s2_block_id = s2_call->block_id;
+                } else {
+                    if (prev_s2_block_id != 0) {
+                        current_link_block_id = current_link_block_id + 1;
+                    }
+                    prev_s2_block_id = s2_call->block_id;
+                    s2_block_id2current_id.emplace(s2_call->block_id,current_link_block_id);
+                }
+            }
+        }
+
+//        if ((!s2_call->isHomo() && s2_call->block_id != prev_s2_block_id)) {
+//            if (s2_block_id2current_id.find(s2_call->block_id) != s2_block_id2current_id.end()) {
+//                current_link_block_id = s2_block_id2current_id[s2_call->block_id];
+//                prev_s2_block_id = s2_call->block_id;
+//            } else {
+//                if (prev_s2_block_id != 0) {
+//                    current_link_block_id = current_link_block_id + 1;
+//                }
+//                prev_s2_block_id = s2_call->block_id;
+//                s2_block_id2current_id.emplace(s2_call->block_id,current_link_block_id);
+//            }
+////            if (prev_s2_block_id == 0) continue;
+//        } else {
+//            if (s2_call->isHomo() && s2_call->block_id != prev_s2_block_id) {
+//                current_link_block_id = current_link_block_id + 1;
+//                prev_s2_block_id = s2_call->block_id;
+//            }
+//        }
 //        if( s1_call->isHomo() || s2_call->isHomo() || !s2_call->isPhased()) continue;
 
 //        check mendel?
@@ -123,13 +150,14 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSe
 //    InfoSet hete_reads;
     auto s = reads.size();
     for(auto it: reads) {
-        if (it.first == 2) {
+        if (it.first == 3) {
             auto mmm = 33;
         }
         if (it.first == 5) {
             int lkk = 9;
         }
-        extract_lst(it.first, idx1, it.second, results_for_variant, this->prev_contig_variant_count);
+        if(it.second->blocks.size() <= 1) continue;
+        extract_lst(idx2, idx1, it.second, results_for_variant, this->prev_contig_variant_count);
         infoSet->add_read(it.second, false);
     }
 //    extend(idx1, hete_reads, side);
@@ -144,7 +172,7 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSe
     }
 }
 
-void ChromoPhaser::extend(int idx, InfoSet* infoSet, int side) {
+void ChromoPhaser::extend(int idx, InfoSet* infoSet, int side, int type) {
     std::unordered_map<int ,int> finalize_new_block_ids;
     int f_new_id;
     for(int i = 0; i < this->results_for_variant.size(); i++) {
@@ -177,7 +205,12 @@ void ChromoPhaser::extend(int idx, InfoSet* infoSet, int side) {
                 finalize_new_block_ids.emplace(new_block_id, f_new_id);
             }
         }
-        s1_call->block_id = f_new_id;
+        if(type == 0) {
+            s1_call->block_id = f_new_id + 1;
+
+        } else {
+            s1_call->block_id = f_new_id;
+        }
         if(n_r){
             auto t = s1_call->allele1;
             s1_call->allele1 = s1_call->allele2;
@@ -258,6 +291,7 @@ void ChromoPhaser::phase_with_homo(int idx1, int idx2, int side, InfoSet* infoSe
         }
     }
 //    InfoSet hete_reads;
+//    extract_lst(idx2, idx1, read, results_for_variant, this->prev_contig_variant_count);
     infoSet->add_read(read, true);
 //    extend(idx1, hete_reads,side);
     if (idx1 == 0) {
@@ -308,13 +342,13 @@ void ChromoPhaser::phase_with_homo2(int idx1, int idx2, int side, InfoSet* infoS
             if (o_side == 0) {
                 if (s2_call->allele1 == s1_call->allele1) {
                     o_side = abs(side);
-                } else {
+                } else if (s2_call->allele1 == s1_call->allele2) {
                     o_side = abs(side - 1);
                 }
             } else {
                 if (s2_call->allele2 == s1_call->allele1) {
                     o_side = abs(side - 1);
-                } else {
+                } else if (s2_call->allele2 == s1_call->allele2) {
                     o_side = abs(side);
                 }
             }
@@ -416,71 +450,159 @@ void ChromoPhaser::check_mendel(int idx1, int idx2, int idx3) {
 }
 
 void extract_lst(int pos,int idx, PInfo* it,std::vector<std::shared_ptr<VcfRecord>>& result_for_variant, int prev_count) {
+
+    int lst_count = 1;
+    int prev_total_lst = 0;
     std::string lst1;
-    lst1.append(" "+std::to_string(pos));
-    if (pos == 21056) {
-        int lkk = 9;
+    std::string qual_str;
+    if (it->side1_support.size() >20) {
+        lst1.append("20");
+    } else{
+        lst1.append(std::to_string(it->side1_support.size()));
     }
-    int lst1_count = 0;
-    int l1_variant_count = 0;
+    lst1.append(" ");
+    lst1.append(std::to_string(pos));
+    lst1.append("xxxx ");
+    int final_sub = it->side1_support.size() % 20;
+//    lst1.append()
+    std::string prev_pos;
+    std::string prev_hap;
+    char prev_qual;
     for (auto item: it->side0_support) {
-        auto prev_pos = 0;
-        std::string prev_str;
-        if(item.second == nullptr) continue;
-        if (item.second->empty()) continue;
-        l1_variant_count = l1_variant_count + item.second->size();
-        for (auto i : *(item).second){
-            if (i - prev_pos != 1) {
-                lst1.append(prev_str + " ");
-                prev_str = "";
-                prev_str.append(std::to_string(prev_count + i)+" ");
-                lst1_count++;
+
+        if (lst_count > 20) {
+            lst1.append(qual_str);
+            lst1.append(" ");
+            lst1.append(std::to_string(60));
+            std::cout << lst1 << std::endl;
+            lst1 = "";
+            qual_str = "";
+            prev_total_lst += 20;
+            if ( it->side1_support.size() - prev_total_lst >= 20) {
+                lst1.append("21");
+            } else {
+                lst1.append(std::to_string(it->side1_support.size() - prev_total_lst + 1));
             }
-            prev_pos = i;
-            auto call = result_for_variant[prev_pos]->calls[idx];
-            prev_str.append(std::to_string(call->allele1));
-        }
-        lst1.append(prev_str);
-    }
-    lst1.append(" "+ std::string(l1_variant_count,'G')+" "+ std::to_string(60));
-
-
-
-    std::string lst2;
-    int l2_variant_count = 0;
-    lst2.append(" "+std::to_string(pos));
-    int lst2_count = 0;
-    for (auto item: it->side1_support) {
-        auto prev_pos = 0;
-        std::string prev_str;
-        if(item.second == nullptr) continue;
-        if (item.second->empty()) continue;
-        l2_variant_count = l2_variant_count + item.second->size();
-        for (auto i : *(item).second){
-            if (i - prev_pos != 1) {
-                lst2.append(prev_str + " ");
-                prev_str = "";
-                prev_str.append(std::to_string( prev_count + i)+" ");
-                lst2_count++;
+            lst1.append(" ");
+            lst1.append(std::to_string(pos));
+            lst1.append("xxxx ");
+            if (prev_hap != "") {
+                lst1.append(prev_pos);
+                lst1.append(" ");
+                lst1.append(prev_hap);
+                lst1.append(" ");
+                qual_str = prev_qual;
             }
-            prev_pos = i;
-            auto call = result_for_variant[prev_pos]->calls[idx];
-            prev_str.append(std::to_string(call->allele2));
+            lst_count = 1;
         }
-        lst2.append(prev_str);
-//        lst2.append(" "+ std::string(item.second->size(),'G')+" "+ std::to_string(60));
-    }
-    lst2.append(" "+ std::string(l2_variant_count,'G')+" "+ std::to_string(60));
+            auto item2_second = it->side1_support[item.first];
+            auto flag = item.second->size() >= item2_second->size();
+            auto current_item = flag ? item.second : item2_second;
+//        auto prev_pos = 0;
+            if(current_item == nullptr) continue;
+            if (current_item->empty()) continue;
+            if ((*current_item)[0] == 235) {
+                int jjj=33;
+            }
+            lst1.append(std::to_string((*current_item)[0] + prev_count + 1));
+            lst1.append(" ");
+            auto call = result_for_variant[(*current_item)[0]]->calls[idx];
+            if (flag) {
+                lst1.append(std::to_string(call->allele1));
+            } else {
+                lst1.append(std::to_string(call->allele2));
+            }
+            lst1.append(" ");
+//        lst1.append(std::string((*current_item->front()));
+            char c = 50 + current_item->size();
+            if (c >= 60)
+                c = '<';
+            qual_str = qual_str + c;
+            if (lst_count == 20) {
+                prev_pos = std::to_string((*current_item)[0] + prev_count + 1);
+                prev_hap = flag ? std::to_string(call->allele1):std::to_string(call->allele2);
+                prev_qual = c;
+            }
 
-//    if (lst1_count != 0)
-//        std::cout<<lst1_count<<" "<<lst1<<std::endl;
-//    if (lst2_count != 0)
-//        std::cout<<lst2_count<<" "<<lst2<<std::endl;
-    if (l1_variant_count >= l2_variant_count) {
-        if (lst1_count != 0)
-            std::cout<<lst1_count<<" "<<lst1<<std::endl;
-    } else {
-        if (lst2_count != 0)
-            std::cout<<lst2_count<<" "<<lst2<<std::endl;
+
+        lst_count += 1;
+
+//        qual_str.append(std::to_string(char(c)));
     }
+    lst1.append(qual_str);
+    lst1.append(" ");
+    lst1.append(std::to_string(60));
+    std::cout << lst1 << std::endl;
+//        if (lst2_count != 0)
+//            std::cout<<lst2_count<<" "<<lst2<<std::endl;
+
+
+//    std::string lst1;
+//    lst1.append(" "+std::to_string(pos));
+//    if (pos == 21056) {
+//        int lkk = 9;
+//    }
+//    int lst1_count = 0;
+//    int l1_variant_count = 0;
+//    for (auto item: it->side0_support) {
+//        auto item2 = it->side1_support[item.first];
+//        auto prev_pos = 0;
+//        std::string prev_str;
+//        if(item.second == nullptr) continue;
+//        if (item.second->empty()) continue;
+//        l1_variant_count = l1_variant_count + item.second->size();
+//        for (auto i : *(item).second){
+//            if (i - prev_pos != 1) {
+//                lst1.append(prev_str + " ");
+//                prev_str = "";
+//                prev_str.append(std::to_string(i)+" ");
+//                lst1_count++;
+//            }
+//            prev_pos = i;
+//            auto call = result_for_variant[prev_pos]->calls[idx];
+//            prev_str.append(std::to_string(call->allele1));
+//        }
+//        lst1.append(prev_str);
+//    }
+//    lst1.append(" "+ std::string(l1_variant_count,'G')+" "+ std::to_string(60));
+//
+//
+//
+//    std::string lst2;
+//    int l2_variant_count = 0;
+//    lst2.append(" "+std::to_string(pos));
+//    int lst2_count = 0;
+//    for (auto item: it->side1_support) {
+//        auto prev_pos = 0;
+//        std::string prev_str;
+//        if(item.second == nullptr) continue;
+//        if (item.second->empty()) continue;
+//        l2_variant_count = l2_variant_count + item.second->size();
+//        for (auto i : *(item).second){
+//            if (i - prev_pos != 1) {
+//                lst2.append(prev_str + " ");
+//                prev_str = "";
+//                prev_str.append(std::to_string( i)+" ");
+//                lst2_count++;
+//            }
+//            prev_pos = i;
+//            auto call = result_for_variant[prev_pos]->calls[idx];
+//            prev_str.append(std::to_string(call->allele2));
+//        }
+//        lst2.append(prev_str);
+////        lst2.append(" "+ std::string(item.second->size(),'G')+" "+ std::to_string(60));
+//    }
+//    lst2.append(" "+ std::string(l2_variant_count,'G')+" "+ std::to_string(60));
+//
+////    if (lst1_count != 0)
+////        std::cout<<lst1_count<<" "<<lst1<<std::endl;
+////    if (lst2_count != 0)
+////        std::cout<<lst2_count<<" "<<lst2<<std::endl;
+//    if (l1_variant_count >= l2_variant_count) {
+//        if (lst1_count != 0)
+//            std::cout<<lst1_count<<" "<<lst1<<std::endl;
+//    } else {
+//        if (lst2_count != 0)
+//            std::cout<<lst2_count<<" "<<lst2<<std::endl;
+//    }
 }
