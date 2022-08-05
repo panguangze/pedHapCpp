@@ -16,6 +16,8 @@
 extern bool ONLY_CHILD;
 extern bool XY;
 extern bool IS_MALE;
+extern bool HETE;
+extern int CHILD;
 class Phaser
 {
 public:

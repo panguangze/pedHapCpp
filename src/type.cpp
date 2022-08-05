@@ -157,8 +157,8 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSe
             int lkk = 9;
         }
         if(it.second->blocks.size() <= 1) continue;
-        extract_lst(idx2, idx1, it.second, results_for_variant, this->prev_contig_variant_count);
         infoSet->add_read(it.second, false);
+        extract_lst(idx2, idx1, it.second, results_for_variant, this->prev_contig_variant_count);
     }
 //    extend(idx1, hete_reads, side);
     if (idx1 == 0) {
@@ -291,9 +291,10 @@ void ChromoPhaser::phase_with_homo(int idx1, int idx2, int side, InfoSet* infoSe
         }
     }
 //    InfoSet hete_reads;
-//    extract_lst(idx2, idx1, read, results_for_variant, this->prev_contig_variant_count);
     infoSet->add_read(read, true);
-//    extend(idx1, hete_reads,side);
+    extract_lst(idx2, idx1, read, results_for_variant, this->prev_contig_variant_count);
+
+    //    extend(idx1, hete_reads,side);
     if (idx1 == 0) {
         for (auto item : infoSet->confilict_poses) {
             if (side % 2 == 0) {
@@ -449,16 +450,16 @@ void ChromoPhaser::check_mendel(int idx1, int idx2, int idx3) {
     }
 }
 
-void extract_lst(int pos,int idx, PInfo* it,std::vector<std::shared_ptr<VcfRecord>>& result_for_variant, int prev_count) {
-
+void ChromoPhaser::extract_lst(int pos,int idx, PInfo* it,std::vector<std::shared_ptr<VcfRecord>>& result_for_variant, int prev_count) {
+    if (it->certain_blocks.size() - 1 <=1) return;
     int lst_count = 1;
-    int prev_total_lst = 0;
+    int prev_total_lst = 1;
     std::string lst1;
     std::string qual_str;
     if (it->side1_support.size() >20) {
         lst1.append("20");
     } else{
-        lst1.append(std::to_string(it->side1_support.size()));
+        lst1.append(std::to_string(it->certain_blocks.size() - 1));
     }
     lst1.append(" ");
     lst1.append(std::to_string(pos));
@@ -469,7 +470,9 @@ void extract_lst(int pos,int idx, PInfo* it,std::vector<std::shared_ptr<VcfRecor
     std::string prev_hap;
     char prev_qual;
     for (auto item: it->side0_support) {
-
+        if (std::find(it->certain_blocks.begin(), it->certain_blocks.end(), item.first) == it->certain_blocks.end() || item.first < 0) {
+            continue;
+        }
         if (lst_count > 20) {
             lst1.append(qual_str);
             lst1.append(" ");
@@ -478,21 +481,21 @@ void extract_lst(int pos,int idx, PInfo* it,std::vector<std::shared_ptr<VcfRecor
             lst1 = "";
             qual_str = "";
             prev_total_lst += 20;
-            if ( it->side1_support.size() - prev_total_lst >= 20) {
-                lst1.append("21");
+            if ( it->certain_blocks.size() - prev_total_lst >= 20) {
+                lst1.append("20");
             } else {
-                lst1.append(std::to_string(it->side1_support.size() - prev_total_lst + 1));
+                lst1.append(std::to_string(it->certain_blocks.size() - prev_total_lst));
             }
             lst1.append(" ");
             lst1.append(std::to_string(pos));
             lst1.append("xxxx ");
-            if (prev_hap != "") {
-                lst1.append(prev_pos);
-                lst1.append(" ");
-                lst1.append(prev_hap);
-                lst1.append(" ");
-                qual_str = prev_qual;
-            }
+//            if (prev_hap != "") {
+//                lst1.append(prev_pos);
+//                lst1.append(" ");
+//                lst1.append(prev_hap);
+//                lst1.append(" ");
+//                qual_str = prev_qual;
+//            }
             lst_count = 1;
         }
             auto item2_second = it->side1_support[item.first];
@@ -503,6 +506,9 @@ void extract_lst(int pos,int idx, PInfo* it,std::vector<std::shared_ptr<VcfRecor
             if (current_item->empty()) continue;
             if ((*current_item)[0] == 235) {
                 int jjj=33;
+            }
+            if ((*current_item)[0] + prev_count + 1 == 463497) {
+                int tmp = 33;
             }
             lst1.append(std::to_string((*current_item)[0] + prev_count + 1));
             lst1.append(" ");
@@ -515,14 +521,28 @@ void extract_lst(int pos,int idx, PInfo* it,std::vector<std::shared_ptr<VcfRecor
             lst1.append(" ");
 //        lst1.append(std::string((*current_item->front()));
             char c = 50 + current_item->size();
-            if (c >= 60)
-                c = '<';
-            qual_str = qual_str + c;
-            if (lst_count == 20) {
-                prev_pos = std::to_string((*current_item)[0] + prev_count + 1);
-                prev_hap = flag ? std::to_string(call->allele1):std::to_string(call->allele2);
-                prev_qual = c;
+            if (pos_qual.find((*current_item)[0] + prev_count + 1) != pos_qual.end()) {
+                if (50 + current_item->size() < pos_qual[(*current_item)[0] + prev_count + 1]) {
+                    if (50 + current_item->size() >= 60)
+                        c = '2';
+                } else {
+                    if (50 + current_item->size() >= 60)
+                        c = '<';
+                }
+                qual_str = qual_str + c;
+            } else {
+                if (50 + current_item->size() >= 60) {
+                    pos_qual[(*current_item)[0] + prev_count + 1] = 50 + current_item->size();
+                    c = '7';
+                }
+                qual_str = qual_str + c;
+//                if (c >= 60 || c <= 0)
             }
+//            if (lst_count == 20) {
+//                prev_pos = std::to_string((*current_item)[0] + prev_count + 1);
+//                prev_hap = flag ? std::to_string(call->allele1):std::to_string(call->allele2);
+//                prev_qual = c;
+//            }
 
 
         lst_count += 1;

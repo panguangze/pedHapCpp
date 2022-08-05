@@ -27,6 +27,7 @@ public:
     std::set<int> conflicts1;
     std::set<int> conflicts2;
     int prev_contig_variant_count;
+    std::map<int, int> pos_qual;
 public:
     ChromoPhaser(const uint &chr_id, const std::string &chr_name, int nsmp);
     ~ChromoPhaser() = default;
@@ -36,6 +37,7 @@ public:
     void phase_with_homo(int idx1, int idx2, int side, InfoSet* infoSet);
     void phase_with_homo2(int idx1, int idx2, int side, InfoSet* infoSet);
     void check_mendel(int idx1, int idx2, int idx3);
+    void extract_lst(int i,int idx, PInfo* it,std::vector<std::shared_ptr<VcfRecord>>& result_for_variant, int prev_count);
     inline void set_prev_contig_variant_count(int pv){
         this->prev_contig_variant_count = pv;
     }
@@ -49,6 +51,5 @@ public:
     }
 //    inline uint get_var_pos(uint idx) { return results_for_variant[idx]->get_pos(); }
 };
-void extract_lst(int i,int idx, PInfo* it,std::vector<std::shared_ptr<VcfRecord>>& result_for_variant, int prev_count);
 #endif
 
