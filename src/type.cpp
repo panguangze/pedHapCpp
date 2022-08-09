@@ -514,9 +514,26 @@ void ChromoPhaser::extract_lst(int pos,int idx, PInfo* it,std::vector<std::share
             lst1.append(" ");
             auto call = result_for_variant[(*current_item)[0]]->calls[idx];
             if (flag) {
-                lst1.append(std::to_string(call->allele1));
+                if(call->allele1 == 2 || call->allele2 == 2) {
+                    if (call->allele1 == 2) {
+                        lst1.append("1");
+                    } else {
+                        lst1.append("0");
+                    }
+                } else {
+                    lst1.append(std::to_string(call->allele1));
+                }
             } else {
-                lst1.append(std::to_string(call->allele2));
+                if(call->allele1 == 2 || call->allele2 == 2) {
+                    if (call->allele2 == 2) {
+                        lst1.append("1");
+                    } else {
+                        lst1.append("0");
+                    }
+                } else {
+                    lst1.append(std::to_string(call->allele2));
+                }
+//                lst1.append(std::to_string(call->allele2));
             }
             lst1.append(" ");
 //        lst1.append(std::string((*current_item->front()));
