@@ -217,69 +217,70 @@ void Phaser::phasing_by_chrom() const
         }
     } else {
         if (HETE) {
-
-        }
-        for(auto it: get_down_to_up()) {
-            s_idx = (*get_sample_to_idx())[it[0]];
+            for(auto it: get_down_to_up()) {
+                s_idx = (*get_sample_to_idx())[it[0]];
 //            chromoPhaser->check_mendel(s_idx, f_idx, m_idx);
-            if(it[1] != EMPTY_ID) f_idx = (*get_sample_to_idx())[it[1]];
-            if(it[2] != EMPTY_ID) m_idx = (*get_sample_to_idx())[it[2]];
-            is_child_male = it[3] == "male";
+                if(it[1] != EMPTY_ID) f_idx = (*get_sample_to_idx())[it[1]];
+                if(it[2] != EMPTY_ID) m_idx = (*get_sample_to_idx())[it[2]];
+                is_child_male = it[3] == "male";
 //        if(s_idx != -1 && m_idx != -1 && f_idx != -1)
 //            chromoPhaser->check_mendel(s_idx, f_idx, m_idx);
-            if(CHILD == 1 && f_idx != -1) {
-                if (!is_child_male && chromoPhaser->is_y()) continue;
-                hete_reads = new InfoSet();
-                home_reads = new InfoSet();
-                chromoPhaser->phase_with_hete(f_idx, s_idx, 0, hete_reads);
-                chromoPhaser->extend(f_idx,hete_reads,0, 0);
+                if(s_idx != -1 && m_idx != -1 && f_idx != -1)
+                    chromoPhaser->check_mendel(s_idx, f_idx, m_idx);
+                if(CHILD == 1 && f_idx != -1) {
+                    if (!is_child_male && chromoPhaser->is_y()) continue;
+                    hete_reads = new InfoSet();
+                    home_reads = new InfoSet();
+                    chromoPhaser->phase_with_hete(f_idx, s_idx, 0, hete_reads);
+                    chromoPhaser->extend(f_idx,hete_reads,0, 0);
 //                chromoPhaser->phase_with_homo(f_idx, s_idx,0, home_reads);
 //                chromoPhaser->extend(f_idx,home_reads,0,1);
-                free(hete_reads);
-                free(home_reads);
-            }
-            if (CHILD == 2 && m_idx != -1) {
-                if (chromoPhaser->is_y()) continue;
-                hete_reads = new InfoSet();
-                home_reads = new InfoSet();
-                chromoPhaser->phase_with_hete(m_idx, s_idx, 0, hete_reads);
-                chromoPhaser->extend(m_idx,hete_reads,0, 0);
+                    free(hete_reads);
+                    free(home_reads);
+                }
+                if (CHILD == 2 && m_idx != -1) {
+                    if (chromoPhaser->is_y()) continue;
+                    hete_reads = new InfoSet();
+                    home_reads = new InfoSet();
+                    chromoPhaser->phase_with_hete(m_idx, s_idx, 0, hete_reads);
+                    chromoPhaser->extend(m_idx,hete_reads,0, 0);
 //                chromoPhaser->phase_with_homo(m_idx, s_idx,0, home_reads);
 //                chromoPhaser->extend(m_idx,home_reads,0,1);
-                free(hete_reads);
-                free(home_reads);
+                    free(hete_reads);
+                    free(home_reads);
+                }
             }
-        }
-
-        for(auto it: get_down_to_up()) {
-            s_idx = (*get_sample_to_idx())[it[0]];
+        } else {
+            for(auto it: get_down_to_up()) {
+                s_idx = (*get_sample_to_idx())[it[0]];
 //            chromoPhaser->check_mendel(s_idx, f_idx, m_idx);
-            if(it[1] != EMPTY_ID) f_idx = (*get_sample_to_idx())[it[1]];
-            if(it[2] != EMPTY_ID) m_idx = (*get_sample_to_idx())[it[2]];
-            is_child_male = it[3] == "male";
-//            if(s_idx != -1 && m_idx != -1 && f_idx != -1)
-//                chromoPhaser->check_mendel(s_idx, f_idx, m_idx);
-            if(f_idx != -1) {
-                if (!is_child_male && chromoPhaser->is_y()) continue;
-                hete_reads = new InfoSet();
-                home_reads = new InfoSet();
+                if(it[1] != EMPTY_ID) f_idx = (*get_sample_to_idx())[it[1]];
+                if(it[2] != EMPTY_ID) m_idx = (*get_sample_to_idx())[it[2]];
+                is_child_male = it[3] == "male";
+            if(s_idx != -1 && m_idx != -1 && f_idx != -1)
+                chromoPhaser->check_mendel(s_idx, f_idx, m_idx);
+                if(CHILD == 1 && f_idx != -1) {
+                    if (!is_child_male && chromoPhaser->is_y()) continue;
+                    hete_reads = new InfoSet();
+                    home_reads = new InfoSet();
 //                chromoPhaser->phase_with_hete(f_idx, s_idx, 0, hete_reads);
 //                chromoPhaser->extend(f_idx,hete_reads,0, 0);
-//                chromoPhaser->phase_with_homo2(f_idx, s_idx,0, home_reads);
+                chromoPhaser->phase_with_homo(f_idx, s_idx,0, home_reads);
 //                chromoPhaser->extend(f_idx,home_reads,0,1);
-                free(hete_reads);
-                free(home_reads);
-            }
-            if (m_idx != -1) {
-                if (chromoPhaser->is_y()) continue;
-                hete_reads = new InfoSet();
-                home_reads = new InfoSet();
+                    free(hete_reads);
+                    free(home_reads);
+                }
+                if (CHILD == 2 && m_idx != -1) {
+                    if (chromoPhaser->is_y()) continue;
+                    hete_reads = new InfoSet();
+                    home_reads = new InfoSet();
 //                chromoPhaser->phase_with_hete(m_idx, s_idx, 1, hete_reads);
 //                chromoPhaser->extend(m_idx,hete_reads,0, 1);
-//                chromoPhaser->phase_with_homo2(m_idx, s_idx,1, home_reads);
+                chromoPhaser->phase_with_homo(m_idx, s_idx,1, home_reads);
 //                chromoPhaser->extend(m_idx,home_reads,0,1);
-                free(hete_reads);
-                free(home_reads);
+                    free(hete_reads);
+                    free(home_reads);
+                }
             }
         }
     }
