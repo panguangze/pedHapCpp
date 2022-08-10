@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
         HETE = result["hete"].as<bool>();
     }
     if (result.count("child")) {
-        CHILD = result["child"].as<bool>();
+        CHILD = result["child"].as<int>();
     }
     std::string homoOut;
     if (result.count("homo_recom")) {
