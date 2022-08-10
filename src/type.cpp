@@ -456,7 +456,7 @@ void ChromoPhaser::extract_lst(int pos,int idx, PInfo* it,std::vector<std::share
     int prev_total_lst = 1;
     std::string lst1;
     std::string qual_str;
-    if (it->side1_support.size() >20) {
+    if (it->certain_blocks.size() >20) {
         lst1.append("20");
     } else{
         lst1.append(std::to_string(it->certain_blocks.size() - 1));
@@ -470,7 +470,7 @@ void ChromoPhaser::extract_lst(int pos,int idx, PInfo* it,std::vector<std::share
     std::string prev_hap;
     char prev_qual;
     for (auto item: it->side0_support) {
-        if (std::find(it->certain_blocks.begin(), it->certain_blocks.end(), item.first) == it->certain_blocks.end() || item.first < 0) {
+        if (std::find(it->certain_blocks.begin(), it->certain_blocks.end(), item.first) == it->certain_blocks.end() || item.first <= 0) {
             continue;
         }
         if (lst_count > 20) {
@@ -481,7 +481,7 @@ void ChromoPhaser::extract_lst(int pos,int idx, PInfo* it,std::vector<std::share
             lst1 = "";
             qual_str = "";
             prev_total_lst += 20;
-            if ( it->certain_blocks.size() - prev_total_lst >= 20) {
+            if ( (it->certain_blocks.size() - prev_total_lst) >= 20) {
                 lst1.append("20");
             } else {
                 lst1.append(std::to_string(it->certain_blocks.size() - prev_total_lst));
