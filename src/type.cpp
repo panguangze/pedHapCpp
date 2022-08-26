@@ -206,7 +206,7 @@ void ChromoPhaser::extend(int idx, InfoSet* infoSet, int side, int type) {
             }
         }
         if(type == 0) {
-            s1_call->block_id = f_new_id + 1;
+            s1_call->block_id = f_new_id;
 
         } else {
             s1_call->block_id = f_new_id;

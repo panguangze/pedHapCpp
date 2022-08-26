@@ -235,9 +235,9 @@ void Phaser::phasing_by_chrom() const
 //                chromoPhaser->phase_with_hete(s_idx, f_idx, 0,hete_reads);
 //                chromoPhaser->phase_with_hete(s_idx, m_idx, 1,hete_reads);
 //                chromoPhaser->extend(s_idx,hete_reads,0, 0);
-//                chromoPhaser->phase_with_homo(s_idx, f_idx,0, home_reads);
-//                chromoPhaser->phase_with_homo(s_idx, m_idx,1, home_reads);
-//                chromoPhaser->extend(s_idx,home_reads,0, 1);
+                chromoPhaser->phase_with_homo(s_idx, f_idx,0, home_reads);
+                chromoPhaser->phase_with_homo(s_idx, m_idx,1, home_reads);
+                chromoPhaser->extend(s_idx,home_reads,0, 1);
                 chromoPhaser->correct_conflict(s_idx);
             }
 //            chromoPhaser->extend(s_idx,hete_reads,0);
@@ -260,8 +260,8 @@ void Phaser::phasing_by_chrom() const
                 home_reads = new InfoSet();
 //                chromoPhaser->phase_with_hete(f_idx, s_idx, 0, hete_reads);
 //                chromoPhaser->extend(f_idx,hete_reads,0, 0);
-//                chromoPhaser->phase_with_homo2(f_idx, s_idx,0, home_reads);
-//                chromoPhaser->extend(f_idx,home_reads,0,1);
+                chromoPhaser->phase_with_homo2(f_idx, s_idx,0, home_reads);
+                chromoPhaser->extend(f_idx,home_reads,0,1);
                 free(hete_reads);
                 free(home_reads);
             }
@@ -271,8 +271,8 @@ void Phaser::phasing_by_chrom() const
                 home_reads = new InfoSet();
 //                chromoPhaser->phase_with_hete(m_idx, s_idx, 1, hete_reads);
 //                chromoPhaser->extend(m_idx,hete_reads,0, 1);
-//                chromoPhaser->phase_with_homo2(m_idx, s_idx,1, home_reads);
-//                chromoPhaser->extend(m_idx,home_reads,0,1);
+                chromoPhaser->phase_with_homo2(m_idx, s_idx,1, home_reads);
+                chromoPhaser->extend(m_idx,home_reads,0,1);
                 free(hete_reads);
                 free(home_reads);
             }
