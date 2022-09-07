@@ -39,7 +39,7 @@ public:
     inline void set_prev_contig_variant_count(int pv){
         this->prev_contig_variant_count = pv;
     }
-    void extend(int idx, InfoSet* infoSet, int side);
+    void extend(int idx, InfoSet* infoSet, int side, int type);
     inline bool is_x() const {
         return chr_name.find('x') != std::string::npos || chr_name.find('X') != std::string::npos;
     }
