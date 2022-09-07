@@ -3,8 +3,9 @@ import os
 
 in_file = open(sys.argv[1])
 out_file = open(sys.argv[2],"w")
-min_support_snp = 3
-
+bed_out = open(sys.argv[3],"w")
+min_support_snp = 5
+current_chr = ""
 for line in in_file.readlines():
     line = line.strip()
     l_array = line.split("\t")
@@ -14,16 +15,21 @@ for line in in_file.readlines():
     is_nahr = False
     is_bnd = False
     if l_array[0] == "chrom":
+        current_chr = l_array[1]
         out_file.write(line+"\n")
         continue
     if len(l_array) == 1:
         recom_event = l_array[0].split("_")
-        if "NAHR" in l_array[0]:
+        if "_NAHR" in l_array[0]:
             out_file.write(recom_event[0]+"\t"+recom_event[0]+"\t"+str(len(l_array))+"\tNAHR\n")
-        if "BND" in l_array[0]:
-            out_file.write(recom_event[0]+"\t"+recom_event[0]+"\t"+str(len(l_array))+"\tBND\n")
+        if "SIMPLER" in l_array[0]:
+            out_file.write(recom_event[0]+"\t"+recom_event[0]+"\t"+str(len(l_array))+"\t_SIMPLERUNNAHR\n")
+            bed_out.write(current_chr+"\t"+str(recom_event[5])+"\t"+str(recom_event[6])+"\n")
+        # if "BND" in l_array[0]:
+        #     out_file.write(recom_event[0]+"\t"+recom_event[0]+"\t"+str(len(l_array))+"\tBND\n")
     else:
-        if len(l_array) <= min_support_snp and "BND" not in line:
+        print(len(l_array),min_support_snp)
+        if len(l_array) <= min_support_snp:
             continue
         # print(l_array)
         start = l_array[0].split("_")[0]

@@ -42,6 +42,9 @@ public:
     void set_segdup(const std::string & dupfile) {
         this->fwvcf->segdup_file = dupfile;
     }
+    void set_simple_repeat(const std::string & simple_repeat_file) {
+        this->fwvcf->simple_repeat_file = simple_repeat_file;
+    }
     void set_trio(std::vector<std::string> trio, bool is_up_to_down) {
         if (is_up_to_down) this->frvcf->up_to_down.push_back(trio);
         else this->frvcf->down_to_up.push_back(trio);

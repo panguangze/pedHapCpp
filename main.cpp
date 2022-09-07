@@ -34,6 +34,7 @@ int main(int argc, char *argv[]) {
             ("sexual", "Sexual of child", cxxopts::value<std::string>())
             ("debug", "debug", cxxopts::value<bool>()->default_value("true"))
             ("seg_dup", "Reference segment duplication regions", cxxopts::value<std::string>())
+            ("simple_repeat", "Reference simple repeat regions", cxxopts::value<std::string>())
             ("ref", "Reference fasta", cxxopts::value<std::string>())
             ("contigs", "phase contigs", cxxopts::value<std::string>())
 //            ("snp_min_support", "Minimum continuous snp site support for home recombination event", cxxopts::value<int>()->default_value("2"))
@@ -51,6 +52,10 @@ int main(int argc, char *argv[]) {
     std::string seg_dup;
     if (result.count("seg_dup")) {
         seg_dup = result["seg_dup"].as<std::string>();
+    }
+    std::string simple_repeat;
+    if (result.count("simple_repeat")) {
+        simple_repeat = result["simple_repeat"].as<std::string>();
     }
     if (result.count("debug")) {
         IS_DEBUG = result["debug"].as<bool>();
@@ -71,6 +76,7 @@ int main(int argc, char *argv[]) {
     auto *phaser = new Phaser(vcfFileName, vcfOut, homoOut);
     phaser->set_contigs(contig_vec);
     phaser->set_segdup(seg_dup);
+    phaser->set_simple_repeat(simple_repeat);
 
     std::ifstream ped(pedFileName);
     std::string fa, mo, ch, gender;

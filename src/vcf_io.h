@@ -173,12 +173,18 @@ public:
     ~VCFWriter();
     std::vector<std::string> extractAltRef(char *als);
     void write_nxt_record(bcf1_t *record, std::shared_ptr<VcfRecord>, std::vector<int>& blk_no);
-    void write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>& result, int cidx, int pidx, int allele_idx, int *conflictFlag, int *conflictCount, std::string& recom_content, std::vector<std::string> & dup_region, uint prev_count);
+    void write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>& result, int cidx, int pidx, int allele_idx, int *conflictFlag, int *conflictCount, std::string& recom_content, std::vector<std::string> & dup_region,std::vector<std::string> &simple_repeat, uint prev_count);
     void write_nxt_record_debug(bcf1_t *record, std::shared_ptr<VcfRecord> result, std::vector<int>& ps_nos, int *conflictFlag, std::vector<std::string> & dup_region);
     void write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phaser, VCFReader &frvcf, uint prev_count);
     std::vector<std::string> parse_segdup(std::string contig);
+    std::vector<std::string> parse_simple_repeat(std::string contig);
 
     std::string segdup_file;
+    std::string simple_repeat_file;
+
+    const std::string &getSimpleRepeatFile() const;
+
+    void setSimpleRepeatFile(const std::string &simpleRepeatFile);
 };
 
 

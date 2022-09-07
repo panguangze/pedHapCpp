@@ -38,3 +38,19 @@ bool check_contains(std::vector<std::string> regions, long pos, long end_pos) {
     }
     return false;
 }
+
+bool check_contains_repeat(std::vector<std::string> regions, long pos, int *start, int *end) {
+    for (int i = 0; i < regions.size(); i++) {
+        auto vs = split(regions[i], '\t');
+        auto s1 = std::stoi(vs[1]);
+        auto e1 = std::stoi(vs[2]);
+        if (pos >= s1 && pos <= e1){
+            auto t = regions[i];
+            auto t1 = regions[i+1];
+            *start = s1;
+            *end = e1;
+            return true;
+        }
+    }
+    return false;
+}

@@ -230,7 +230,7 @@ std::vector<std::string> VCFWriter::extractAltRef(char *als) {
 }
 
 void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>& result, int cidx, int pidx, int allele_idx,
-                                int *conflictFlag, int *conflictCount, std::string &recom_content, std::vector<std::string> &dup_region, uint prev_count) {
+                                int *conflictFlag, int *conflictCount, std::string &recom_content, std::vector<std::string> &dup_region, std::vector<std::string> &simple_repeat, uint prev_count) {
 //    int i, j,nsmpl = bcf_hdr_nsamples(header);
     auto ccall = result->calls[cidx];
     auto pcall = result->calls[pidx];
@@ -260,8 +260,8 @@ void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>
     }
     std::string line;
 //    line.append("\t");
-    line.append(std::to_string(prev_count));
-//    line.append(std::to_string(result->pos + 1));
+//    line.append(std::to_string(prev_count));
+    line.append(std::to_string(result->pos + 1));
 
     if (c1 != p1 && c1 == p2) {
         if (*conflictFlag == 0) {
@@ -431,8 +431,18 @@ void VCFWriter::write_nxt_record_debug(bcf1_t *record, std::shared_ptr<VcfRecord
             if (result->bnd) {
                 bcf_get_info_int32(header, record, "END", &ends, &end_n);
             }
-            if (result->bnd && check_contains(dup_region, record->pos, *ends) && f1 == 0 && f2 == 0 && m1 == 0 &&
+            if (result->bnd  && f1 == 0 && f2 == 0 && m1 == 0 &&
                 m2 == 0 && (c1 != 0 or c2 != 0)) {
+                if (check_contains(dup_region, record->pos, *ends))
+                    line.append("_NAHR");
+                int zero = 0;
+                int *start = &zero ,*end = &zero;
+                if (check_contains_repeat(dup_region,record->pos,start,end)) {
+                    line.append("SIMPLER_");
+                    line.append(std::to_string(*start));
+                    line.append("_");
+                    line.append(std::to_string(*end));line.append("_");
+                }
                 if (*ends - record->pos >= 100000) {
                     line.append("\ttoo long");
                 }
@@ -458,6 +468,7 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
     int *conflictFlag, v = 0;
     conflictFlag = &v;
     auto dup_region = parse_segdup(frvcf.contigs[frvcf.curr_contig]);
+    auto simple_repeat_region = parse_simple_repeat(frvcf.contigs[frvcf.curr_contig]);
 //    this->debugFile<<"chrom\t"<<contig;
     std::unordered_map<std::string, std::string> sample_name2recom;
     int* fConflictFlags = new int [frvcf.up_to_down.size()];
@@ -522,6 +533,14 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                             if (check_contains(dup_region, record->pos, *ends)) {
                                 line.append("NAHR");
                             } else {
+                                int zero = 0;
+                                int *start = &zero ,*end = &zero;
+                                if (check_contains_repeat(simple_repeat_region,record->pos,start,end)) {
+                                    line.append("SIMPLER_");
+                                    line.append(std::to_string(*start));
+                                    line.append("_");
+                                    line.append(std::to_string(*end));line.append("_");
+                                }
                                 line.append("UNNAHR");
                             }
                             sample_name2recom[it[1]].append(line);
@@ -544,6 +563,14 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                             if (check_contains(dup_region, record->pos, *ends)) {
                                 line.append("NAHR");
                             } else {
+                                int zero = 0;
+                                int *start = &zero ,*end = &zero;
+                                if (check_contains_repeat(simple_repeat_region,record->pos,start,end)) {
+                                    line.append("SIMPLER_");
+                                    line.append(std::to_string(*start));
+                                    line.append("_");
+                                    line.append(std::to_string(*end));line.append("_");
+                                }
                                 line.append("UNNAHR");
                             }
                             sample_name2recom[it[2]].append(line);
@@ -566,6 +593,14 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                             if (check_contains(dup_region, record->pos, *ends)) {
                                 line.append("NAHR");
                             } else {
+                                int zero = 0;
+                                int *start = &zero ,*end = &zero;
+                                if (check_contains_repeat(simple_repeat_region,record->pos,start,end)) {
+                                    line.append("SIMPLER_");
+                                    line.append(std::to_string(*start));
+                                    line.append("_");
+                                    line.append(std::to_string(*end));line.append("_");
+                                }
                                 line.append("UNNAHR");
                             }
                             sample_name2recom[it[0]].append(line);
@@ -582,11 +617,11 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                 }
                 if (it[1] != EMPTY_ID) {
                     f_idx = (*frvcf.sample_to_idx)[it[1]];
-                    write_recom_duo(record,result,s_idx,f_idx,0,fConflictFlags+trio_idx, fConflictCounts+trio_idx, sample_name2recom[it[1]],dup_region, prev_count);
+                    write_recom_duo(record,result,s_idx,f_idx,0,fConflictFlags+trio_idx, fConflictCounts+trio_idx, sample_name2recom[it[1]],dup_region, simple_repeat_region, prev_count);
                 }
                 if (it[2] != EMPTY_ID) {
                     m_idx = (*frvcf.sample_to_idx)[it[2]];
-                    write_recom_duo(record,result,s_idx,m_idx,1,mConflictFlags+trio_idx, mConflictCounts+trio_idx, sample_name2recom[it[2]],dup_region, prev_count);
+                    write_recom_duo(record,result,s_idx,m_idx,1,mConflictFlags+trio_idx, mConflictCounts+trio_idx, sample_name2recom[it[2]],dup_region,simple_repeat_region, prev_count);
                 }
 //                write_nxt_record_debug(record, result, ps_nos, conflictFlag, dup_region);
                 trio_idx++;
@@ -625,5 +660,28 @@ std::vector<std::string> VCFWriter::parse_segdup(std::string contig) {
     }
     infile.close();
     return result;
+}
+
+std::vector<std::string> VCFWriter::parse_simple_repeat(std::string contig) {
+    std::vector<std::string> result;
+    std::ifstream infile(segdup_file);
+    int start,end;
+    std::string line;
+    while (std::getline(infile, line)) {
+        auto vs = split(line, '\t');
+        if (vs[0] != contig || vs[3] != contig) continue;
+        result.push_back(line);
+//        result.push_back(std::stoi(vs[2]));
+    }
+    infile.close();
+    return result;
+}
+
+const std::string &VCFWriter::getSimpleRepeatFile() const {
+    return simple_repeat_file;
+}
+
+void VCFWriter::setSimpleRepeatFile(const std::string &simpleRepeatFile) {
+    simple_repeat_file = simpleRepeatFile;
 }
 

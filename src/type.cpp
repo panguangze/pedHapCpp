@@ -6,7 +6,7 @@
 #include <cmath>
 #include <set>
 #include "util.h"
-#define SPECIFIC_HOMO_BLOCK -123456789
+#define SPECIFIC_HOMO_BLOCK -123456789l
 
 ChromoPhaser::ChromoPhaser(const uint &chr_id, const std::string &chr_name, int nsmp) {
     this->chr_id = chr_id;
@@ -433,7 +433,9 @@ void extract_lst(int pos,int idx, PInfo* it,std::vector<std::shared_ptr<VcfRecor
             if (i - prev_pos != 1) {
                 lst1.append(prev_str + " ");
                 prev_str = "";
-                prev_str.append(std::to_string(prev_count + i)+" ");
+//                prev_str.append(std::to_string(i + 1)+" ");
+                prev_str.append(std::to_string(prev_count + i + 1)+" ");
+
                 lst1_count++;
             }
             prev_pos = i;
@@ -460,7 +462,8 @@ void extract_lst(int pos,int idx, PInfo* it,std::vector<std::shared_ptr<VcfRecor
             if (i - prev_pos != 1) {
                 lst2.append(prev_str + " ");
                 prev_str = "";
-                prev_str.append(std::to_string( prev_count + i)+" ");
+//                prev_str.append(std::to_string(i + 1)+" ");
+                prev_str.append(std::to_string( prev_count + i +1 )+" ");
                 lst2_count++;
             }
             prev_pos = i;

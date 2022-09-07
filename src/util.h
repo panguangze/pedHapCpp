@@ -12,5 +12,6 @@
 void logging(std::ostream &stream, const std::string & message);
 std::vector<std::string> split(const std::string &s, char delim);
 bool check_contains(std::vector<std::string> regions, long pos, long end_pos);
+bool check_contains_repeat(std::vector<std::string> regions, long pos, int *start, int *end);
 //bool check_mendel(au)
 #endif
