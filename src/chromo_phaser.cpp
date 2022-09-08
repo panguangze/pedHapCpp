@@ -43,21 +43,24 @@ int Phaser::load_contig_blocks(ChromoPhaser *chromo_phaser)
     while (true)
     {
         auto result = std::make_shared<VcfRecord>();
+
+        status = this->frvcf->get_next_record_contig(result, true);
+
+        if (status < 0) //eof, new chromosome 
+            break;
+        else if (status > 0) //homo 
+            continue;
+        if (result->pos == 97134) {
+            int tmp = 0;
+        }
         for(int i = 0; i < chromo_phaser->sample_count; i++) {
             auto item = result->calls[i];
             if(item->isHomo()) {
                 item->block_id = prev_block_ids[i];
             } else {
+                if(item->block_id != 0)
                 prev_block_ids[i] = item->block_id;
             }
-        }
-        status = this->frvcf->get_next_record_contig(result, true);
-        if (status < 0) //eof, new chromosome 
-            break;
-        else if (status > 0) //homo 
-            continue;
-        if (result->pos == 13849720) {
-            int tmp = 0;
         }
         chromo_phaser->add_result(result);
     }
@@ -182,9 +185,9 @@ void Phaser::phasing_by_chrom() const
                 chromoPhaser->phase_with_hete(s_idx, m_idx, 1,hete_reads);
                 chromoPhaser->phase_with_hete(s_idx, f_idx, 0,hete_reads);
                 chromoPhaser->extend(s_idx,hete_reads,0, 0);
-//                chromoPhaser->phase_with_homo(s_idx, f_idx,0, home_reads);
-//                chromoPhaser->phase_with_homo(s_idx, m_idx,1, home_reads);
-//                chromoPhaser->extend(s_idx,home_reads,0,1);
+                chromoPhaser->phase_with_homo(s_idx, f_idx,0, home_reads);
+                chromoPhaser->phase_with_homo(s_idx, m_idx,1, home_reads);
+                chromoPhaser->extend(s_idx,home_reads,0,1);
             }
 
 //            chromoPhaser->extend(s_idx,hete_reads,0);
@@ -206,8 +209,8 @@ void Phaser::phasing_by_chrom() const
                 home_reads = new InfoSet();
                 chromoPhaser->phase_with_hete(f_idx, s_idx, 0, hete_reads);
                 chromoPhaser->extend(f_idx,hete_reads,0, 0);
-//                chromoPhaser->phase_with_homo(f_idx, s_idx,0, home_reads);
-//                chromoPhaser->extend(f_idx,home_reads,0,1);
+                chromoPhaser->phase_with_homo2(f_idx, s_idx,0, home_reads);
+                chromoPhaser->extend(f_idx,home_reads,0,1);
                 free(hete_reads);
                 free(home_reads);
             }
@@ -215,10 +218,10 @@ void Phaser::phasing_by_chrom() const
                 if (chromoPhaser->is_y()) continue;
                 hete_reads = new InfoSet();
                 home_reads = new InfoSet();
-                chromoPhaser->phase_with_hete(m_idx, s_idx, 0, hete_reads);
+                chromoPhaser->phase_with_hete(m_idx, s_idx, 1, hete_reads);
                 chromoPhaser->extend(m_idx,hete_reads,0, 0);
-//                chromoPhaser->phase_with_homo(m_idx, s_idx,0, home_reads);
-//                chromoPhaser->extend(m_idx,home_reads,0,1);
+                chromoPhaser->phase_with_homo2(m_idx, s_idx,1, home_reads);
+                chromoPhaser->extend(m_idx,home_reads,0,1);
                 free(hete_reads);
                 free(home_reads);
             }

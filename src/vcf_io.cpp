@@ -203,7 +203,12 @@ void VCFWriter::write_nxt_record(bcf1_t *record, std::shared_ptr<VcfRecord> resu
             gt[2*i] = bcf_gt_unphased(tcall->allele1);
             gt[2*i + 1] = bcf_gt_unphased(tcall->allele2);
         }
-        ps[i] = ps_nos[i];
+        if(result->calls[i]->isHomo()) {
+//            ps[i] = 0;
+            ps[i] = ps_nos[i];
+        } else{
+            ps[i] = ps_nos[i];
+        }
     }
     bcf_update_genotypes(this->header, record, gt, ngt);
     bcf_update_format_int32(this->header, record, "PS", ps, sample_count);
@@ -239,7 +244,7 @@ void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>
         int tmp = 0;
     }
 
-    if ((!ccall->isPhased() && !ccall->isHomo()) || (ccall->isPhased() && ccall->block_id != 1)) {
+    if ((!ccall->isPhased() && !ccall->isHomo()) || (!ccall->isHomo() && ccall->isPhased() && ccall->block_id != 1)) {
         *conflictFlag = 0;
         return;
     }

@@ -8,7 +8,7 @@ PInfo::PInfo(int infoId) {
     this->infoId = infoId;
 }
 
-void PInfo::set_covered_call(int b_ps, int side, int pos) {
+void PInfo::set_covered_call(int b_ps, int side, int pos, bool is_homo_support) {
     if (blocks.find(b_ps)== blocks.end()) {
         blocks.emplace(b_ps, 1);
         side0_support[b_ps] = new std::vector<int>();
@@ -16,9 +16,15 @@ void PInfo::set_covered_call(int b_ps, int side, int pos) {
     }
     if (side == 0) {
         side0_support[b_ps]->push_back(pos);
+        if (is_homo_support) {
+            side1_support[b_ps]->push_back(pos);
+        }
     }
     if (side == 1) {
         side1_support[b_ps]->push_back(pos);
+        if (is_homo_support) {
+            side0_support[b_ps]->push_back(pos);
+        }
     }
 }
 

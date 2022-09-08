@@ -26,7 +26,7 @@ public:
     std::map<int, std::vector<int>*> side1_support;
     int infoId;
     explicit PInfo(int infoId);
-    void set_covered_call(int ps, int side, int pos);
+    void set_covered_call(int ps, int side, int pos, bool is_homo_support);
     void init_blocks(std::vector<int>& confilict_poses);
 };
 
