@@ -195,6 +195,10 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSe
             }
         }
     }
+    for (auto it: reads) {
+        free(it.second);
+    }
+    reads.clear();
 }
 
 void ChromoPhaser::extend(int idx, InfoSet* infoSet, int side, int type) {
@@ -260,7 +264,7 @@ void ChromoPhaser::phase_with_homo(int idx1, int idx2, int side, InfoSet* infoSe
     for(int i = 0 ; i < tmp.size(); i++) {
         auto mendel_pas = tmp[i];
         auto result = results_for_variant[mendel_pas];
-        if (result->pos == 97921) {
+        if (result->pos == 8377789) {
             int tmp3=1;
         }
         Call *s1_call = result->calls[idx1];
@@ -282,9 +286,9 @@ void ChromoPhaser::phase_with_homo(int idx1, int idx2, int side, InfoSet* infoSe
             auto o_side = side;
             if (o_side == 0 && this->conflicts1.find(mendel_pas) != this->conflicts1.end())  {
                 if (s1_call->allele2 == s2_call->allele1) {
-                    o_side = abs(side);
-                } else {
                     o_side = abs(side - 1);
+                } else {
+                    o_side = abs(side);
                 }
             } else {
                 if (o_side == 0) {
@@ -328,6 +332,7 @@ void ChromoPhaser::phase_with_homo(int idx1, int idx2, int side, InfoSet* infoSe
             }
         }
     }
+    free(read);
 }
 
 
@@ -340,19 +345,19 @@ void ChromoPhaser::phase_with_homo2(int idx1, int idx2, int side, InfoSet* infoS
     for(int i = 0 ; i < tmp.size(); i++) {
         auto mendel_pas = tmp[i];
         auto result = results_for_variant[mendel_pas];
-        if (result->pos == 49993078) {
+        if (result->pos == 481589) {
             int tmp3=1;
         }
         Call *s1_call = result->calls[idx1];
         Call *s2_call = result->calls[idx2];
-        if(s1_call->block_id == 11) {
+        if(s1_call->block_id == 10) {
             int mmm = 33;
         }
 //        if (!) {
 //
 //        }
 //        if (s1_call->isHomo() || (!s2_call->isHomo() )) continue;
-        if ((!s2_call->isPhased() && !s2_call->isHomo()) || (!s2_call->isHomo() && s2_call->isPhased() && s2_call->block_id != 1)) continue;
+        if ((!s2_call->isPhased() && !s2_call->isHomo()) || (!s2_call->isHomo() && s2_call->isPhased() && s2_call->block_id != 1) || s1_call->isHomo()) continue;
 //        check mendel?
 //        if ((s1_call->allele1 != s2_call->allele1 && s1_call->allele1 != s2_call->allele2) &&
 //                (s1_call->allele2 != s2_call->allele1 && s1_call->allele2 != s2_call->allele2))
@@ -398,6 +403,9 @@ void ChromoPhaser::phase_with_homo2(int idx1, int idx2, int side, InfoSet* infoS
 ////                    }
 ////                }
 //            }
+            if(s1_call->block_id == 9) {
+                int tmp4 = 1;
+            }
             read->set_covered_call(s1_call->block_id, o_side, mendel_pas, false);
         } else {
 //            s1_call->block_id = SPECIFIC_HOMO_BLOCK;
@@ -424,10 +432,12 @@ void ChromoPhaser::phase_with_homo2(int idx1, int idx2, int side, InfoSet* infoS
             }
         }
     }
+    free(read);
 }
 
 
 void ChromoPhaser::check_mendel(int idx1, int idx2, int idx3) {
+    if (!mendel_cs.empty()) return;
     for (int i = 0; i < results_for_variant.size(); ++i) {
         auto rec = results_for_variant[i];
         if (rec->pos == 13849720) {
