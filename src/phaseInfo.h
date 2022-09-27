@@ -110,7 +110,7 @@ public:
 //                            blocks_reverse_info.emplace(blk_id, r);
                             flip(blk_id);
                         } else {
-                            if (CORRECT_SCORE * origin_max - ERROR_SCORE * origin_min < CORRECT_SCORE * current_max - ERROR_SCORE * current_min) {
+                            if (CORRECT_SCORE * origin_max - ERROR_SCORE * origin_min <= CORRECT_SCORE * current_max - ERROR_SCORE * current_min) {
 //                            flip(blk_id);
                                 blocks_reverse_info.emplace(blk_id, r);
                             }

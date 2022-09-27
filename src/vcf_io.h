@@ -115,10 +115,11 @@ public:
         bcf_unpack(buffer, BCF_UN_ALL);
 
 
-        int i, j, ngt,nps, nsmpl = bcf_hdr_nsamples(header);
-        int *gt_arr = nullptr, *ps_arr = nullptr, ngt_arr =0, nps_arr = 0;
+        int i, j, ngt,nps,npl, nsmpl = bcf_hdr_nsamples(header);
+        int *gt_arr = nullptr, *ps_arr = nullptr, ngt_arr =0, nps_arr = 0, *pl_arr = nullptr, npl_arr = 0;
         ngt = bcf_get_genotypes(header, buffer, &gt_arr, &ngt_arr);
         nps = bcf_get_format_int32(header, buffer, "PS", &ps_arr, &nps_arr);
+        npl = bcf_get_format_int32(header, buffer, "PL", &pl_arr, &npl_arr);
         result->pos = buffer->pos;
         result->ID = buffer->rid;
         int max_ploidy = ngt / nsmpl;
@@ -126,9 +127,14 @@ public:
         for (i = 0; i < nsmpl; i++) {
             int *ptr = gt_arr + i * max_ploidy;
             int *p_ptr = (ps_arr == nullptr? nullptr : ps_arr + i);
+            int *pl_ptr = (pl_arr == nullptr? nullptr : pl_arr + i);
             auto call = new Call();
             call->allele1 = bcf_gt_allele(ptr[0]);
             call->allele2 = bcf_gt_allele(ptr[1]);
+            if (pl_ptr != nullptr && *pl_ptr < 0  && call->allele1 <0 && call->allele2 < 2) {
+                call->allele1 = 0;
+                call->allele2 = 0;
+            }
 //            if(call->allele1 == -1) call->allele1 = 0;
 //            if(call->allele2 == -1) call->allele2 = 0;
             p_ptr == nullptr || *p_ptr <=0 ? call->block_id = 0 : call->block_id = *p_ptr;
