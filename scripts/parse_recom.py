@@ -4,7 +4,7 @@ import os
 in_file = open(sys.argv[1])
 out_file = open(sys.argv[2],"w")
 bed_out = open(sys.argv[3],"w")
-min_support_snp = 5
+min_support_snp = 10
 current_chr = ""
 for line in in_file.readlines():
     line = line.strip()

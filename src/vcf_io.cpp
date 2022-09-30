@@ -596,7 +596,7 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                             line.append(std::to_string(result->calls[2]->allele2));
                             line.append("_conflict_");
                             if (check_contains(dup_region, record->pos, *ends)) {
-                                line.append("NAHR");
+                                line.append("NAHR\n");
                             } else {
                                 int zero = 0;
                                 int *start = &zero ,*end = &zero;
@@ -606,7 +606,7 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                                     line.append("_");
                                     line.append(std::to_string(*end));line.append("_");
                                 }
-                                line.append("UNNAHR");
+                                line.append("UNNAHR\n");
                             }
                             sample_name2recom[it[0]].append(line);
                             free(ends);
@@ -643,7 +643,7 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
         else
             this->debugFile<<"\nchrom\t"<<contig;
         i++;
-        this->debugFile<<"\t"<<it.first<<it.second;
+        this->debugFile<<"\t"<<it.first<<it.second<<"\n";
     }
     free(fConflictFlags);
     free(mConflictFlags);
