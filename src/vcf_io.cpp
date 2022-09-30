@@ -204,8 +204,8 @@ void VCFWriter::write_nxt_record(bcf1_t *record, std::shared_ptr<VcfRecord> resu
             gt[2*i + 1] = bcf_gt_unphased(tcall->allele2);
         }
         if(result->calls[i]->isHomo()) {
-//            ps[i] = 0;
-            ps[i] = ps_nos[i];
+            ps[i] = 0;
+//            ps[i] = ps_nos[i];
         } else{
             ps[i] = ps_nos[i];
         }

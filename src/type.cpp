@@ -210,6 +210,12 @@ void ChromoPhaser::extend(int idx, InfoSet* infoSet, int side, int type) {
             int tmp=1;
         }
         Call* s1_call = result->calls[idx];
+        Call* s2_call;
+        Call* s3_call;
+        if (idx == 0) {
+            s2_call = result->calls[idx+1];
+            s3_call = result->calls[idx+2];
+        }
         if (s1_call->isHomo()) continue;
         if (s1_call->block_id == 0) continue;
         if (result->pos == 168386) {
@@ -234,11 +240,20 @@ void ChromoPhaser::extend(int idx, InfoSet* infoSet, int side, int type) {
                 finalize_new_block_ids.emplace(new_block_id, f_new_id);
             }
         }
+//        if (f_new_id == 1) {
+//            if(type == 0) {
+//                s1_call->block_id = f_new_id + 1;
+//            } else if ((s2_call->isHomo() || s3_call->isHomo())){
+//                s1_call->block_id = f_new_id;
+//            }
+//        } else {
+//            s1_call->block_id = f_new_id + 1;
+//        }
         if(type == 0) {
             s1_call->block_id = f_new_id + 1;
 
-        } else {
-            s1_call->block_id = f_new_id;
+        } else if (new_block_id !=-1){
+            s1_call->block_id = 1;
         }
         if(n_r){
             auto t = s1_call->allele1;
