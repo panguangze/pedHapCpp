@@ -55,7 +55,7 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSe
 //        if(result->bnd) continue;
         Call* s1_call = result->calls[idx1];
         Call* s2_call = result->calls[idx2];
-        if (s1_call->pos == 165608) {
+        if (s1_call->pos == 194418246) {
             int tmp3=1;
         }
         if( s1_call->isHomo() || (!s2_call->isHomo() and !s2_call->isPhased())) continue;
@@ -175,8 +175,11 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSe
 //    InfoSet hete_reads;
     auto s = reads.size();
     for(auto it: reads) {
-        if (it.first == 2) {
+        if (it.first == 1) {
             auto mmm = 33;
+            auto s0 = it.second->side0_support[194418247];
+            auto s1 = it.second->side1_support[194418247];
+            auto mmmm = 44;
         }
         if (it.first == 5) {
             int lkk = 9;
@@ -279,7 +282,7 @@ void ChromoPhaser::phase_with_homo(int idx1, int idx2, int side, InfoSet* infoSe
     for(int i = 0 ; i < tmp.size(); i++) {
         auto mendel_pas = tmp[i];
         auto result = results_for_variant[mendel_pas];
-        if (result->pos == 8377789) {
+        if (result->pos == 2128375) {
             int tmp3=1;
         }
         Call *s1_call = result->calls[idx1];

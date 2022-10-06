@@ -85,18 +85,19 @@ int main(int argc, char *argv[]) {
     while (ped >> ch >> fa >> mo) {
         if(ch == "#" && flag) {
             flag = false;
-            continue;
-        }
-        trio.push_back(ch);
-        trio.push_back(fa);
-        trio.push_back(mo);
-        trio.push_back(gender);
-        phaser->set_trio(trio,flag);
+//            continue;
+        } else {
+            trio.push_back(ch);
+            trio.push_back(fa);
+            trio.push_back(mo);
+            trio.push_back(gender);
+            phaser->set_trio(trio,flag);
 //        if(flag)
 //            phaser->set_trio(trio,flag);
 //        else
 //            phaser->down_to_up.push_back(trio);
-        trio.clear();
+            trio.clear();
+        }
     }
     phaser->phasing();
     delete phaser;

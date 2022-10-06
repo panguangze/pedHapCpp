@@ -123,6 +123,9 @@ public:
         result->pos = buffer->pos;
         result->ID = buffer->rid;
         int max_ploidy = ngt / nsmpl;
+        if (buffer->pos == 196110441) {
+            auto mmmm = 9;
+        }
 //        if(nps <0 ) return -1;
         for (i = 0; i < nsmpl; i++) {
             int *ptr = gt_arr + i * max_ploidy;
@@ -131,9 +134,10 @@ public:
             auto call = new Call();
             call->allele1 = bcf_gt_allele(ptr[0]);
             call->allele2 = bcf_gt_allele(ptr[1]);
-            if (pl_ptr != nullptr && *pl_ptr < 0  && call->allele1 <0 && call->allele2 < 2) {
+            if (pl_ptr != nullptr && *pl_ptr <= 0  && call->allele1 <0 && call->allele2 < 2) {
                 call->allele1 = 0;
                 call->allele2 = 0;
+                call->un_sure = true;
             }
 //            if(call->allele1 == -1) call->allele1 = 0;
 //            if(call->allele2 == -1) call->allele2 = 0;

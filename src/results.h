@@ -15,6 +15,7 @@ public:
     int allele2;
     int block_id;
     int pos;
+    bool un_sure; // here, for genotype ./.,
     bool need_flip;
     Call();
     ~Call() = default;

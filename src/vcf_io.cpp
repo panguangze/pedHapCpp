@@ -196,6 +196,10 @@ void VCFWriter::write_nxt_record(bcf1_t *record, std::shared_ptr<VcfRecord> resu
 
     for (i = 0; i < nsmpl; i++) {
         auto tcall = result->calls[i];
+//        if (tcall->un_sure) {
+//            gt[2*i] = bcf_gt_unphased(-1);
+//            gt[2*i + 1] = bcf_gt_unphased(-1);
+//        }
         if (tcall->isPhased() || tcall->isHomo()) {
             gt[2*i] = bcf_gt_phased(tcall->allele1);
             gt[2*i + 1] = bcf_gt_phased(tcall->allele2);
@@ -239,15 +243,27 @@ void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>
 //    int i, j,nsmpl = bcf_hdr_nsamples(header);
     auto ccall = result->calls[cidx];
     auto pcall = result->calls[pidx];
-
-    if(record->pos == 137015) {
+    if(record->pos == 196110562) {
         int tmp = 0;
     }
-
-    if ((!ccall->isPhased() && !ccall->isHomo()) || (!ccall->isHomo() && ccall->isPhased() && ccall->block_id != 1)) {
-        *conflictFlag = 0;
+    if (!ccall->isHomo() && ccall->isPhased() && ccall->block_id != 1) {
+        *conflictFlag += 1;
         return;
     }
+    if (ccall->un_sure || pcall->un_sure) {
+//        if (*conflictFlag == 1) {
+//            *conflictFlag = 2;
+//        }
+        return;
+    }
+    if (!ccall->isPhased() && !ccall->isHomo()) {
+//        *conflictFlag = 3;
+        return;
+    }
+//    if ((!ccall->isPhased() && !ccall->isHomo()) || (!ccall->isHomo() && ccall->isPhased() && ccall->block_id != 1)) {
+//        *conflictFlag = 0;
+//        return;
+//    }
     if (pcall->isHomo() || pcall->block_id != 1) {
         return;
     }
@@ -260,6 +276,10 @@ void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>
         c1 = ccall->allele2;
         c2 = ccall->allele1;
     }
+//    if (ccall->un_sure || pcall->un_sure) {
+//        *conflictFlag = 2;
+//        return;
+//    }
     if (c1 == -1 || c2 == -1 || p1 == -1 || p2 == -1) {
         return;
     }
@@ -267,12 +287,17 @@ void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>
 //    line.append("\t");
 //    line.append(std::to_string(prev_count));
     line.append(std::to_string(result->pos + 1));
-
+//    if (*conflictFlag == 2) {
+//        line.append("_un_sure_GT");
+//    }
+//    if (*conflictFlag == 3) {
+//        line.append("_un_sure_GT");
+//    }
     if (c1 != p1 && c1 == p2) {
-        if (*conflictFlag == 0) {
+        if (*conflictFlag >=2 ) {
             recom_content.append("\n");
         }
-        *conflictFlag = 1;
+        *conflictFlag = 0;
         line.append("_");
         if (allele_idx == 0) {
             line.append(std::to_string(c1));
@@ -312,7 +337,16 @@ void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>
 //        conflictCount++;
         free(ends);
     } else {
-        *conflictFlag = 0;
+//        if (*conflictFlag < 2) {
+//            *conflictFlag = 2;
+//        } else {
+//            *conflictFlag = 0;
+//        }
+        *conflictFlag += 1;
+
+//        if (*conflictFlag == 1) {
+//            recom_content.append("\n");
+//        }
 //        if ((c1 != c2)) {
 //            line.append("\t");
 //            *conflictFlag = 0;
