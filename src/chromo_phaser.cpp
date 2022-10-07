@@ -158,7 +158,7 @@ void Phaser::phasing_by_chrom() const
     int s_idx=-1, f_idx=-1, m_idx=-1;
     bool is_child_male;
     int i = 0;
-    while (i != 2) {
+    while (i != 1) {
         InfoSet* hete_reads;
         InfoSet* home_reads;
         for(auto it: get_up_to_down()) {
@@ -186,7 +186,10 @@ void Phaser::phasing_by_chrom() const
                 chromoPhaser->phase_with_hete(s_idx, f_idx, 0,hete_reads);
                 chromoPhaser->extend(s_idx,hete_reads,0, 0);
                 chromoPhaser->phase_with_homo(s_idx, f_idx,0, home_reads);
-                chromoPhaser->phase_with_homo(s_idx, m_idx,1, home_reads);
+                auto t1 = home_reads->blocks_reverse_info[92];
+
+//                chromoPhaser->phase_with_homo(s_idx, m_idx,1, home_reads);
+                auto t2 = home_reads->blocks_reverse_info[92];
                 chromoPhaser->extend(s_idx,home_reads,0,1);
             }
 

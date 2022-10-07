@@ -81,6 +81,12 @@ public:
         }
         auto prev_block_id = first_block;
         for(auto blk_id : pinfo->certain_blocks) {
+            if (blocks_reverse_info[10]) {
+                auto sjjj = 0;
+            }
+            if (blk_id == 10) {
+                auto tstop = 2;
+            }
             if (side0_support.find(blk_id) == side0_support.end()) {
 //                blocks.emplace(b_ps, 1);
                 side0_support[blk_id] = new std::vector<int>();
@@ -93,6 +99,7 @@ public:
 //                this->parent[b_id] = b_id;
 //                this->rank[b_id] = 1;
 //            }
+            auto cbr = blocks_reverse_info[blk_id];
             if (blk_id > 0) {
                 if(find(blk_id) != -1) {
                     // if current max and two flip not equal, flip all origin
@@ -107,23 +114,31 @@ public:
                         auto current_max = current_side0_size > current_side1_size ? current_side0_size : current_side1_size;
                         auto current_min = current_side0_size < current_side1_size ? current_side0_size : current_side1_size;
                         if (std::find(prev_link_heads.begin(), prev_link_heads.end(), blk_id) != prev_link_heads.end()) {
-//                            blocks_reverse_info.emplace(blk_id, r);
-                            flip(blk_id);
+                            if (is_homo) {
+//                                blocks_reverse_info.emplace(blk_id, r);
+                                auto const result = blocks_reverse_info.insert(std::make_pair(blk_id, r));
+                                if (not result.second) { result.first->second = r; }
+                            } else {
+                                flip(blk_id);
+                            }
                         } else {
                             if (CORRECT_SCORE * origin_max - ERROR_SCORE * origin_min <= CORRECT_SCORE * current_max - ERROR_SCORE * current_min) {
 //                            flip(blk_id);
-                                blocks_reverse_info.emplace(blk_id, r);
+                                auto const result = blocks_reverse_info.insert(std::make_pair(blk_id, r));
+                                if (not result.second) { result.first->second = r; }
                             }
                         }
                         Union(blk_id, prev_block_id);
                         prev_block_id = blk_id;
                     } else {
-                        blocks_reverse_info.emplace(blk_id, r);
+                        auto const result = blocks_reverse_info.insert(std::make_pair(blk_id, r));
+                        if (not result.second) { result.first->second = r; }
                         Union(blk_id, prev_block_id);
                         prev_block_id = blk_id;
                     }
                 } else {
-                    this->blocks_reverse_info.emplace(blk_id, r);
+                    auto const result = blocks_reverse_info.insert(std::make_pair(blk_id, r));
+                    if (not result.second) { result.first->second = r; }
                     Union(blk_id, prev_block_id);
                     prev_block_id = blk_id;
                 }

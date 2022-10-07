@@ -209,7 +209,7 @@ void ChromoPhaser::extend(int idx, InfoSet* infoSet, int side, int type) {
     int f_new_id;
     for(int i = 0; i < this->results_for_variant.size(); i++) {
         auto result = results_for_variant[i];
-        if (result->pos == 168386) {
+        if (result->pos == 23343) {
             int tmp=1;
         }
         Call* s1_call = result->calls[idx];
@@ -221,9 +221,9 @@ void ChromoPhaser::extend(int idx, InfoSet* infoSet, int side, int type) {
         }
         if (s1_call->isHomo()) continue;
         if (s1_call->block_id == 0) continue;
-        if (result->pos == 168386) {
+        if (result->pos == 23343) {
             int tmp = 2;
-            auto v = infoSet->blocks_reverse_info.find(69538) == infoSet->blocks_reverse_info.end();
+            auto v = infoSet->blocks_reverse_info.find(10) == infoSet->blocks_reverse_info.end();
             int tp = 2;
         }
         auto new_block_id = infoSet->find(s1_call->block_id);
@@ -233,14 +233,18 @@ void ChromoPhaser::extend(int idx, InfoSet* infoSet, int side, int type) {
                 f_new_id = finalize_new_block_ids[s1_call->block_id];
             } else {
                 f_new_id = finalize_new_block_ids.size() + 1;
-                finalize_new_block_ids.emplace(s1_call->block_id, f_new_id);
+                auto const result = finalize_new_block_ids.insert(std::make_pair(s1_call->block_id, f_new_id));
+                if (not result.second) { result.first->second = f_new_id; }
+//                finalize_new_block_ids.emplace(s1_call->block_id, f_new_id);
             }
         } else {
             if(finalize_new_block_ids.find(new_block_id) != finalize_new_block_ids.end()) {
                 f_new_id = finalize_new_block_ids[new_block_id];
             } else {
                 f_new_id = finalize_new_block_ids.size() + 1;
-                finalize_new_block_ids.emplace(new_block_id, f_new_id);
+                auto const result = finalize_new_block_ids.insert(std::make_pair(new_block_id, f_new_id));
+                if (not result.second) { result.first->second = f_new_id; }
+//                finalize_new_block_ids.emplace(new_block_id, f_new_id);
             }
         }
 //        if (f_new_id == 1) {
@@ -282,7 +286,7 @@ void ChromoPhaser::phase_with_homo(int idx1, int idx2, int side, InfoSet* infoSe
     for(int i = 0 ; i < tmp.size(); i++) {
         auto mendel_pas = tmp[i];
         auto result = results_for_variant[mendel_pas];
-        if (result->pos == 2128375) {
+        if (result->pos == 23343) {
             int tmp3=1;
         }
         Call *s1_call = result->calls[idx1];
@@ -339,6 +343,9 @@ void ChromoPhaser::phase_with_homo(int idx1, int idx2, int side, InfoSet* infoSe
     }
 //    InfoSet hete_reads;
 //    extract_lst(idx2, idx1, read, results_for_variant, this->prev_contig_variant_count);
+    auto tttm = infoSet->blocks_reverse_info[92];
+    auto tmpjj = read->side0_support[10];
+    auto tmpjj2 = read->side1_support[10];
     infoSet->add_read(read, true);
 //    extend(idx1, hete_reads,side);
     if (idx1 == 0) {
