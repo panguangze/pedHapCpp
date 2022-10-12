@@ -581,6 +581,7 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                                     line.append(std::to_string(*end));line.append("_");
                                 }
                                 line.append("UNNAHR");
+                                line.append("_DENOVO");
                             }
                             sample_name2recom[it[1]].append(line);
                             free(ends);
@@ -611,6 +612,7 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                                     line.append(std::to_string(*end));line.append("_");
                                 }
                                 line.append("UNNAHR");
+                                line.append("_DENOVO");
                             }
                             sample_name2recom[it[2]].append(line);
                             free(ends);
@@ -641,6 +643,7 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                                     line.append(std::to_string(*end));line.append("_");
                                 }
                                 line.append("UNNAHR\n");
+                                line.append("_DENOVO");
                             }
                             sample_name2recom[it[0]].append(line);
                             free(ends);

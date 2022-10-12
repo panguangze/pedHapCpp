@@ -40,7 +40,7 @@ void PInfo::init_blocks(std::vector<int>& confilict_poses) {
         auto v0 = (float)side0_support[block_id]->size();
         auto v1 = (float)side1_support[block_id]->size();
 //        if (v1 == v0 || (v0 != 0 && v1 != 0 && std::max(v0, v1)/std::min(v0, v1) <= T1) || (abs(v1 - v0) <= T2 && (v1 ==0 || v0 == 0))){
-        if (std::abs(v1 - v0) >= T2 ||((v1 == 0 || v0 == 0) && std::abs(v1 - v0) >= T1)){
+        if (((v1 == 0 || v0 == 0) && std::abs(v1 - v0) >= T1) || std::abs(v1 - v0) >= T2){
             certain_blocks.push_back(block_id);
             auto n_r = false;
             if (v1 > v0) {
