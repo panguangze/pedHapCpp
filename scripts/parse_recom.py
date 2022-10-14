@@ -20,17 +20,19 @@ for line in in_file.readlines():
         continue
     if len(l_array) == 1:
         recom_event = l_array[0].split("_")
-        if "_NAHR" in l_array[0]:
-            out_file.write(recom_event[0]+"\t"+recom_event[0]+"\t"+str(len(l_array))+"\tNAHR\n")
-        if "SIMPLER" in l_array[0]:
+        if "DENOVO" in l_array[0]:
+            out_file.write(recom_event[0]+"\t"+recom_event[0]+"\t"+str(len(l_array))+"\tDENOVO\n")
+        elif "SIMPLER" in l_array[0]:
             out_file.write(recom_event[0]+"\t"+recom_event[0]+"\t"+str(len(l_array))+"\t_SIMPLERUNNAHR\n")
             bed_out.write(current_chr+"\t"+str(recom_event[5])+"\t"+str(recom_event[6])+"\n")
+        elif "_NAHR" in l_array[0]:
+            out_file.write(recom_event[0]+"\t"+recom_event[0]+"\t"+str(len(l_array))+"\t_NAHR\n")
         # if "BND" in l_array[0]:
         #     out_file.write(recom_event[0]+"\t"+recom_event[0]+"\t"+str(len(l_array))+"\tBND\n")
     else:
-        print(len(l_array),min_support_snp)
-        if len(l_array) <= min_support_snp:
-            continue
+        # print(len(l_array),min_support_snp)
+        # if len(l_array) <= min_support_snp:
+        #     continue
         # print(l_array)
         start = l_array[0].split("_")[0]
         end = l_array[-1].split("_")[0]
