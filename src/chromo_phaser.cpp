@@ -188,7 +188,7 @@ void Phaser::phasing_by_chrom() const
                 chromoPhaser->phase_with_homo(s_idx, f_idx,0, home_reads);
                 auto t1 = home_reads->blocks_reverse_info[92];
 
-//                chromoPhaser->phase_with_homo(s_idx, m_idx,1, home_reads);
+                chromoPhaser->phase_with_homo(s_idx, m_idx,1, home_reads);
                 auto t2 = home_reads->blocks_reverse_info[92];
                 chromoPhaser->extend(s_idx,home_reads,0,1);
             }
