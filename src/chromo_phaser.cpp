@@ -183,7 +183,7 @@ void Phaser::phasing_by_chrom() const
                     chromoPhaser->check_mendel(s_idx, f_idx, m_idx);
 //            chromoPhaser->check_mendel(s_idx, f_idx, m_idx);
                 chromoPhaser->phase_with_hete(s_idx, m_idx, 1,hete_reads);
-                chromoPhaser->phase_with_hete(s_idx, f_idx, 0,hete_reads);
+//                chromoPhaser->phase_with_hete(s_idx, f_idx, 0,hete_reads);
                 chromoPhaser->extend(s_idx,hete_reads,0, 0);
                 chromoPhaser->phase_with_homo(s_idx, f_idx,0, home_reads);
                 auto t1 = home_reads->blocks_reverse_info[92];
