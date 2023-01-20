@@ -156,20 +156,20 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSe
             }
 //            auto o_side = side;
         } else {
-//            if ((s1_call->allele1 != s2_call->allele2 && s1_call->allele1 != s2_call->allele1) &&
-//                    (s1_call->allele2 != s2_call->allele2 && s1_call->allele2 != s2_call->allele1))
-//                continue;
-//            if (s1_call->allele1 == s2_call->allele2 || s1_call->allele2 == s2_call->allele1) {
-//                if (side % 2 == 0) {
-//                    conflicts1.insert(mendel_pas);
-//                } else {
-//                    conflicts2.insert(mendel_pas);
-//                }
-//                auto t = s1_call->allele1;
-//                s1_call->allele1 = s1_call->allele2;
-//                s1_call->allele2 = t;
-//            }
-//            s1_call->block_id = -s2_call->block_id;
+            if ((s1_call->allele1 != s2_call->allele2 && s1_call->allele1 != s2_call->allele1) &&
+                    (s1_call->allele2 != s2_call->allele2 && s1_call->allele2 != s2_call->allele1))
+                continue;
+            if (s1_call->allele1 == s2_call->allele2 || s1_call->allele2 == s2_call->allele1) {
+                if (side % 2 == 0) {
+                    conflicts1.insert(mendel_pas);
+                } else {
+                    conflicts2.insert(mendel_pas);
+                }
+                auto t = s1_call->allele1;
+                s1_call->allele1 = s1_call->allele2;
+                s1_call->allele2 = t;
+            }
+            s1_call->block_id = -s2_call->block_id;
         }
     }
 //    InfoSet hete_reads;
@@ -221,6 +221,10 @@ void ChromoPhaser::extend(int idx, InfoSet* infoSet, int side, int type) {
         }
         if (s1_call->isHomo()) continue;
         if (s1_call->block_id == 0) continue;
+        if (s1_call->block_id == SPECIFIC_HOMO_BLOCK) {
+            s1_call->block_id = 1;
+            continue;
+        }
         if (result->pos == 23343) {
             int tmp = 2;
             auto v = infoSet->blocks_reverse_info.find(10) == infoSet->blocks_reverse_info.end();
@@ -329,16 +333,16 @@ void ChromoPhaser::phase_with_homo(int idx1, int idx2, int side, InfoSet* infoSe
             }
             read->set_covered_call(s1_call->block_id, o_side, mendel_pas, false);
         } else {
-//            s1_call->block_id = SPECIFIC_HOMO_BLOCK;
-//            if(side == 0 && s1_call->allele1 != s2_call->allele1) {
-//                auto t = s1_call->allele1;
-//                s1_call->allele1 = s1_call->allele2;
-//                s1_call->allele2 = t;
-//            } else if(side == 1 && s1_call->allele1 == s2_call->allele1){
-//                auto t = s1_call->allele1;
-//                s1_call->allele1 = s1_call->allele2;
-//                s1_call->allele2 = t;
-//            }
+            s1_call->block_id = SPECIFIC_HOMO_BLOCK;
+            if(side == 0 && s1_call->allele1 != s2_call->allele1) {
+                auto t = s1_call->allele1;
+                s1_call->allele1 = s1_call->allele2;
+                s1_call->allele2 = t;
+            } else if(side == 1 && s1_call->allele1 == s2_call->allele1){
+                auto t = s1_call->allele1;
+                s1_call->allele1 = s1_call->allele2;
+                s1_call->allele2 = t;
+            }
         }
     }
 //    InfoSet hete_reads;
@@ -433,16 +437,16 @@ void ChromoPhaser::phase_with_homo2(int idx1, int idx2, int side, InfoSet* infoS
             }
             read->set_covered_call(s1_call->block_id, o_side, mendel_pas, false);
         } else {
-//            s1_call->block_id = SPECIFIC_HOMO_BLOCK;
-//            if(side == 0 && s1_call->allele1 != s2_call->allele1) {
-//                auto t = s1_call->allele1;
-//                s1_call->allele1 = s1_call->allele2;
-//                s1_call->allele2 = t;
-//            } else if(side == 1 && s1_call->allele1 == s2_call->allele1){
-//                auto t = s1_call->allele1;
-//                s1_call->allele1 = s1_call->allele2;
-//                s1_call->allele2 = t;
-//            }
+            s1_call->block_id = SPECIFIC_HOMO_BLOCK;
+            if(side == 0 && s1_call->allele1 != s2_call->allele1) {
+                auto t = s1_call->allele1;
+                s1_call->allele1 = s1_call->allele2;
+                s1_call->allele2 = t;
+            } else if(side == 1 && s1_call->allele1 == s2_call->allele1){
+                auto t = s1_call->allele1;
+                s1_call->allele1 = s1_call->allele2;
+                s1_call->allele2 = t;
+            }
         }
     }
 //    InfoSet hete_reads;

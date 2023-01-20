@@ -31,8 +31,8 @@ for line in in_file.readlines():
         #     out_file.write(recom_event[0]+"\t"+recom_event[0]+"\t"+str(len(l_array))+"\tBND\n")
     else:
         # print(len(l_array),min_support_snp)
-        # if len(l_array) <= min_support_snp:
-        #     continue
+        if len(l_array) <= min_support_snp:
+            continue
         # print(l_array)
         start = l_array[0].split("_")[0]
         end = l_array[-1].split("_")[0]
