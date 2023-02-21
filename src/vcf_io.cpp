@@ -246,7 +246,8 @@ void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>
     if(record->pos == 196110562) {
         int tmp = 0;
     }
-    if (!ccall->isHomo() && ccall->isPhased() && ccall->block_id != 1) {
+//    TODO: if consider  && ccall->block_id != 1
+    if (!ccall->isHomo() && ccall->isPhased()) {
         *conflictFlag += 1;
         return;
     }
