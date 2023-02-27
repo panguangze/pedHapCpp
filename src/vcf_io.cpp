@@ -323,9 +323,9 @@ void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>
         int *ends = nullptr;
         int end_n = 0;
         if (result->bnd) {
-            bcf_get_info_int32(header, record, "END", &ends, &end_n);
+//            bcf_get_info_int32(header, record, "END", &ends, &end_n);
             line.append("_BND");
-            if (*ends - record->pos >= 100000) {
+            if (result->end - record->pos >= 100000) {
                 line.append("LONG");
             }
         }
@@ -469,11 +469,12 @@ void VCFWriter::write_nxt_record_debug(bcf1_t *record, std::shared_ptr<VcfRecord
             int *ends = nullptr;
             int end_n;
             if (result->bnd) {
-                bcf_get_info_int32(header, record, "END", &ends, &end_n);
+//                bcf_get_info_int32(header, record, "END", &ends, &end_n);
+//            *ends = result->end;
             }
             if (result->bnd  && f1 == 0 && f2 == 0 && m1 == 0 &&
                 m2 == 0 && (c1 != 0 or c2 != 0)) {
-                if (check_contains(dup_region, record->pos, *ends))
+                if (check_contains(dup_region, record->pos, result->end))
                     line.append("_NAHR");
                 int zero = 0;
                 int *start = &zero ,*end = &zero;
@@ -558,7 +559,7 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                         if (result->calls[0]->isPhased() && result->calls[0]->allele1 == 1) {
                             int *ends = nullptr;
                             int end_n = 0;
-                            bcf_get_info_int32(header, record, "END", &ends, &end_n);
+//                            bcf_get_info_int32(header, record, "END", &ends, &end_n);
                             line.append("\n");
                             line.append(std::to_string(result->pos+1));
                             line.append("_");
@@ -570,7 +571,7 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                             line.append("|");
                             line.append(std::to_string(result->calls[1]->allele2));
                             line.append("_conflict_");
-                            if (check_contains(dup_region, record->pos, *ends)) {
+                            if (check_contains(dup_region, record->pos, result->end)) {
                                 line.append("NAHR");
                                 line.append("_DENOVO\n");
                             } else {
@@ -590,7 +591,7 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                         } else if (result->calls[0]->isPhased() && result->calls[0]->allele2 == 1) {
                             int *ends = nullptr;
                             int end_n = 0;
-                            bcf_get_info_int32(header, record, "END", &ends, &end_n);
+//                            bcf_get_info_int32(header, record, "END", &ends, &end_n);
                             line.append("\n");
                             line.append(std::to_string(result->pos+1));
                             line.append("_");
@@ -602,7 +603,7 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                             line.append("|");
                             line.append(std::to_string(result->calls[2]->allele2));
                             line.append("_conflict_");
-                            if (check_contains(dup_region, record->pos, *ends)) {
+                            if (check_contains(dup_region, record->pos, result->end)) {
                                 line.append("NAHR");
                                 line.append("_DENOVO\n");
                             } else {
@@ -622,7 +623,7 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                         } else if(!result->calls[0]->isPhased() && !result->calls[0]->isHomo()) {
                             int *ends = nullptr;
                             int end_n = 0;
-                            bcf_get_info_int32(header, record, "END", &ends, &end_n);
+//                            bcf_get_info_int32(header, record, "END", &ends, &end_n);
                             line.append("\n");
                             line.append(std::to_string(result->pos+1));
                             line.append("_");
@@ -634,7 +635,7 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                             line.append("|");
                             line.append(std::to_string(result->calls[2]->allele2));
                             line.append("_conflict_");
-                            if (check_contains(dup_region, record->pos, *ends)) {
+                            if (check_contains(dup_region, record->pos, result->end)) {
                                 line.append("NAHR");
                                 line.append("_DENOVO\n");
                             } else {

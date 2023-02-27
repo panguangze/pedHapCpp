@@ -107,7 +107,10 @@ public:
         if (ninfo < 0)
             result->bnd = false;
         else
-            result->bnd = true;
+            if (strcmp(info, "SNV") !=0)
+                result->bnd = true;
+            else
+                result->bnd = false;
 
         if (buffer->rid != this->curr_bcf_contig)
             return -1;
@@ -116,11 +119,21 @@ public:
 
 
         int i, j, ngt,nps,npl, nsmpl = bcf_hdr_nsamples(header);
-        int *gt_arr = nullptr, *ps_arr = nullptr, ngt_arr =0, nps_arr = 0, *pl_arr = nullptr, npl_arr = 0;
+        int *gt_arr = nullptr, *ps_arr = nullptr, ngt_arr =0, nps_arr = 0, *pl_arr = nullptr, npl_arr = 0, *ends, *svlen, svlen_n = 0, end_n = 0;
         ngt = bcf_get_genotypes(header, buffer, &gt_arr, &ngt_arr);
         nps = bcf_get_format_int32(header, buffer, "PS", &ps_arr, &nps_arr);
         npl = bcf_get_format_int32(header, buffer, "PL", &pl_arr, &npl_arr);
         result->pos = buffer->pos;
+        if (result->bnd) {
+            bcf_get_info_int32(header, buffer, "END", &ends, &end_n);
+            if (ends == nullptr) {
+                bcf_get_info_int32(header, buffer, "END", &svlen, &svlen_n);
+                result->end = *svlen + result->pos;
+            } else {
+                result->end = *ends;
+            }
+        }
+
         result->ID = buffer->rid;
         int max_ploidy = ngt / nsmpl;
         if (buffer->pos == 196110441) {

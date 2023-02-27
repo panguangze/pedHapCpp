@@ -55,7 +55,7 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSe
 //        if(result->bnd) continue;
         Call* s1_call = result->calls[idx1];
         Call* s2_call = result->calls[idx2];
-        if (s1_call->pos == 194418246) {
+        if (s1_call->pos == 878665 || s1_call->pos == 878664) {
             int tmp3=1;
         }
         if( s1_call->isHomo() || (!s2_call->isHomo() and !s2_call->isPhased())) continue;
@@ -117,7 +117,7 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSe
 
         if(s1_call->isPhased()) {
             auto o_side = side;
-            if (s2_call->isHomo()) {
+            if (!s2_call->isHomo()) {
                 if(s1_call->allele1 == s2_call->allele1) {
                     o_side = abs(side);
                 } else {
@@ -147,12 +147,12 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSe
 //                        o_side = abs(side);
 //                    }
 //                }
-                if(s1_call->allele1 == s2_call->allele2 || s1_call->allele2 == s2_call->allele1) {
-                    o_side = abs(side -1);
-                } else {
-                    o_side = abs(side);
-                }
-                reads[current_link_block_id]->set_covered_call(s1_call->block_id, o_side, mendel_pas, false);
+//                if(s1_call->allele1 == s2_call->allele2 || s1_call->allele2 == s2_call->allele1) {
+//                    o_side = abs(side -1);
+//                } else {
+//                    o_side = abs(side);
+//                }
+//                reads[current_link_block_id]->set_covered_call(s1_call->block_id, o_side, mendel_pas, false);
             }
 //            auto o_side = side;
         } else {

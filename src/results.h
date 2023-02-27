@@ -43,6 +43,7 @@ public:
     std::string ref;
     std::string alts;
     bool bnd;
+    uint end;
 
     VcfRecord();
     ~VcfRecord() = default;
