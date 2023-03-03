@@ -156,20 +156,20 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSe
             }
 //            auto o_side = side;
         } else {
-//            if ((s1_call->allele1 != s2_call->allele2 && s1_call->allele1 != s2_call->allele1) &&
-//                    (s1_call->allele2 != s2_call->allele2 && s1_call->allele2 != s2_call->allele1))
-//                continue;
-//            if (s1_call->allele1 == s2_call->allele2 || s1_call->allele2 == s2_call->allele1) {
-//                if (side % 2 == 0) {
-//                    conflicts1.insert(mendel_pas);
-//                } else {
-//                    conflicts2.insert(mendel_pas);
-//                }
-//                auto t = s1_call->allele1;
-//                s1_call->allele1 = s1_call->allele2;
-//                s1_call->allele2 = t;
-//            }
-//            s1_call->block_id = -s2_call->block_id;
+            if ((s1_call->allele1 != s2_call->allele2 && s1_call->allele1 != s2_call->allele1) &&
+                    (s1_call->allele2 != s2_call->allele2 && s1_call->allele2 != s2_call->allele1))
+                continue;
+            if (s1_call->allele1 == s2_call->allele2 || s1_call->allele2 == s2_call->allele1) {
+                if (side % 2 == 0) {
+                    conflicts1.insert(mendel_pas);
+                } else {
+                    conflicts2.insert(mendel_pas);
+                }
+                auto t = s1_call->allele1;
+                s1_call->allele1 = s1_call->allele2;
+                s1_call->allele2 = t;
+            }
+            s1_call->block_id = -s2_call->block_id;
         }
     }
 //    InfoSet hete_reads;
@@ -333,16 +333,16 @@ void ChromoPhaser::phase_with_homo(int idx1, int idx2, int side, InfoSet* infoSe
             }
             read->set_covered_call(s1_call->block_id, o_side, mendel_pas, false);
         } else {
-//            s1_call->block_id = SPECIFIC_HOMO_BLOCK;
-//            if(side == 1 && s1_call->allele1 != s2_call->allele1) {
-//                auto t = s1_call->allele1;
-//                s1_call->allele1 = s1_call->allele2;
-//                s1_call->allele2 = t;
-//            } else if(side == 0 && s1_call->allele1 == s2_call->allele1){
-//                auto t = s1_call->allele1;
-//                s1_call->allele1 = s1_call->allele2;
-//                s1_call->allele2 = t;
-//            }
+            s1_call->block_id = SPECIFIC_HOMO_BLOCK;
+            if(side == 1 && s1_call->allele1 != s2_call->allele1) {
+                auto t = s1_call->allele1;
+                s1_call->allele1 = s1_call->allele2;
+                s1_call->allele2 = t;
+            } else if(side == 0 && s1_call->allele1 == s2_call->allele1){
+                auto t = s1_call->allele1;
+                s1_call->allele1 = s1_call->allele2;
+                s1_call->allele2 = t;
+            }
         }
     }
 //    InfoSet hete_reads;
@@ -481,35 +481,44 @@ void ChromoPhaser::check_mendel(int idx1, int idx2, int idx3) {
         auto f2 = father->allele2;
         auto m1 = mother->allele1;
         auto m2 = mother->allele2;
-        if(c1 == -1) {
+        if (c1 == -1 || c1 == -1 || f1 == -1 || f2 == -1 || m1 == -1 || m2 == -1) {
             mendel_cs.push_back(i);
             continue;
-        } else if (f1 == -1 && m1 != -1) {
-            if (c1 == m1 || c1 == m2 || c2 == m1 || c2 == m2){
-                mendel_passm.push_back(i);
-                continue;
-            }
-        } else if (f1 != -1 && m1 == -1) {
-            if (c1 == f1 || c1 == f2 || c2 == f1 || c2 == f2){
-                mendel_passf.push_back(i);
-                continue;
-            }
-//            mendel_passf.push_back(i);
-//            continue;
-        } else if (f1 == -1 && m1 == -1){
-            mendel_cs.push_back(i);
         } else {
             if (((c1 == f1 && c2 == m1) || (c1 == f1 && c2 == m2) || (c1 == f2 && c2 == m1) || (c1 == f2 && c2 == m2) ||
                  (c2 == f1 && c1 == m1) || (c2 == f1 && c1 == m2) || (c2 == f2 && c1 == m1) || (c2 == f2 && c1 == m2))){
                 mendel_passm.push_back(i);
                 mendel_passf.push_back(i);
-            }else if (c1 == m1 || c1 == m2 || c2 == m1 || c2 == m2) {
-                mendel_passm.push_back(i);
-            } else if (c1 == f1 || c1 == f2 || c2 == f1 || c2 == f2) {
-                mendel_passf.push_back(i);
-            }else
-                mendel_cs.push_back(i);
         }
+//        if(c1 == -1) {
+//            mendel_cs.push_back(i);
+//            continue;
+//        } else if (f1 == -1 && m1 != -1) {
+//            if (c1 == m1 || c1 == m2 || c2 == m1 || c2 == m2){
+//                mendel_passm.push_back(i);
+//                continue;
+//            }
+//        } else if (f1 != -1 && m1 == -1) {
+//            if (c1 == f1 || c1 == f2 || c2 == f1 || c2 == f2){
+//                mendel_passf.push_back(i);
+//                continue;
+//            }
+////            mendel_passf.push_back(i);
+////            continue;
+//        } else if (f1 == -1 && m1 == -1){
+//            mendel_cs.push_back(i);
+//        } else {
+//            if (((c1 == f1 && c2 == m1) || (c1 == f1 && c2 == m2) || (c1 == f2 && c2 == m1) || (c1 == f2 && c2 == m2) ||
+//                 (c2 == f1 && c1 == m1) || (c2 == f1 && c1 == m2) || (c2 == f2 && c1 == m1) || (c2 == f2 && c1 == m2))){
+//                mendel_passm.push_back(i);
+//                mendel_passf.push_back(i);
+//            }else if (c1 == m1 || c1 == m2 || c2 == m1 || c2 == m2) {
+//                mendel_passm.push_back(i);
+//            } else if (c1 == f1 || c1 == f2 || c2 == f1 || c2 == f2) {
+//                mendel_passf.push_back(i);
+//            }else
+//                mendel_cs.push_back(i);
+//        }
     }
 }
 
