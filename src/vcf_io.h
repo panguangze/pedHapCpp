@@ -147,19 +147,19 @@ public:
             auto call = new Call();
             call->allele1 = bcf_gt_allele(ptr[0]);
             call->allele2 = bcf_gt_allele(ptr[1]);
-            if (pl_ptr != nullptr && *pl_ptr <= 0  && call->allele1 <0 && call->allele2 < 2) {
-                call->allele1 = 0;
-                call->allele2 = 0;
-                call->un_sure = true;
-            }
-            if (call->allele1 <0) {
-                call->allele1 = 0;
-                call->un_sure = true;
-            }
-            if (call->allele2 <0) {
-                call->allele2 = 0;
-                call->un_sure = true;
-            }
+//            if (pl_ptr != nullptr && *pl_ptr <= 0  && call->allele1 <0 && call->allele2 < 2) {
+//                call->allele1 = 0;
+//                call->allele2 = 0;
+//                call->un_sure = true;
+//            }
+//            if (call->allele1 <0) {
+//                call->allele1 = 0;
+//                call->un_sure = true;
+//            }
+//            if (call->allele2 <0) {
+//                call->allele2 = 0;
+//                call->un_sure = true;
+//            }
 //            if(call->allele1 == -1) call->allele1 = 0;
 //            if(call->allele2 == -1) call->allele2 = 0;
             p_ptr == nullptr || *p_ptr <=0 ? call->block_id = 0 : call->block_id = *p_ptr;
