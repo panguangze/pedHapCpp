@@ -518,7 +518,7 @@ void ChromoPhaser::check_mendel(int idx1, int idx2, int idx3) {
 //                mendel_passf.push_back(i);
 //            }else
 //                mendel_cs.push_back(i);
-//        }
+        }
     }
 }
 
