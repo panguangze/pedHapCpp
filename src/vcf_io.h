@@ -134,7 +134,7 @@ public:
             }
         }
 
-        result->ID = buffer->rid;
+        result->ID = buffer->d.id;
         int max_ploidy = ngt / nsmpl;
         if (buffer->pos == 196110441) {
             auto mmmm = 9;

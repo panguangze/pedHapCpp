@@ -41,6 +41,7 @@ void ChromoPhaser::correct_conflict(int idx){
 }
 
 void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSet) {
+    if (idx2 == -1) return;
     logging(std::cerr,"phasing hete");
 //    auto idx2_phase_block = this->phased_blocks_info[idx2];
     std::unordered_map<uint, PInfo*> reads;
@@ -51,7 +52,10 @@ void ChromoPhaser::phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSe
     std::unordered_map<int, int> s2_block_id2current_id;
     for(int mendel_pas : tmp) {
         auto result = results_for_variant[mendel_pas];
-
+        if(result->ID == ".") {
+//            auto tmp3 = 5;
+            continue;
+        }
 //        if(result->bnd) continue;
         Call* s1_call = result->calls[idx1];
         Call* s2_call = result->calls[idx2];
@@ -282,14 +286,20 @@ void ChromoPhaser::extend(int idx, InfoSet* infoSet, int side, int type) {
 }
 
 void ChromoPhaser::phase_with_homo(int idx1, int idx2, int side, InfoSet* infoSet) {
+    if (idx2 == -1) return;
     logging(std::cerr,"phasing homo");
 //    auto idx2_phase_block = this->phased_blocks_info[idx2];
     auto read = new PInfo(SPECIFIC_HOMO_BLOCK);
     auto tmp = ((idx1 == 0 && idx2 == 1) or (idx1 == 1 && idx2 == 0)) ? this->mendel_passf : this->mendel_passm;
 
     for(int i = 0 ; i < tmp.size(); i++) {
+
         auto mendel_pas = tmp[i];
         auto result = results_for_variant[mendel_pas];
+        if(result->ID == ".") {
+//            auto tmp3 = 5;
+            continue;
+        }
         if (result->pos == 23343) {
             int tmp3=1;
         }
@@ -374,6 +384,10 @@ void ChromoPhaser::phase_with_homo2(int idx1, int idx2, int side, InfoSet* infoS
     for(int i = 0 ; i < tmp.size(); i++) {
         auto mendel_pas = tmp[i];
         auto result = results_for_variant[mendel_pas];
+        if(result->ID == ".") {
+//            auto tmp3 = 5;
+            continue;
+        }
         if (result->pos == 481589) {
             int tmp3=1;
         }
@@ -468,6 +482,12 @@ void ChromoPhaser::phase_with_homo2(int idx1, int idx2, int side, InfoSet* infoS
 void ChromoPhaser::check_mendel(int idx1, int idx2, int idx3) {
     if (!mendel_cs.empty()) return;
     for (int i = 0; i < results_for_variant.size(); ++i) {
+        if (idx2 == -1 || idx3 == -1) {
+            mendel_cs.push_back(i);
+            mendel_passm.push_back(i);
+            mendel_passf.push_back(i);
+            continue;
+        }
         auto rec = results_for_variant[i];
         if (rec->pos == 13849720) {
             int tmp = 0;
