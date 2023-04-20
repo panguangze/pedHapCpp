@@ -322,14 +322,14 @@ void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>
         line.append("conflict");
         int *ends = nullptr;
         int end_n = 0;
-        if (result->bnd) {
+        if (!IBND && result->bnd) {
 //            bcf_get_info_int32(header, record, "END", &ends, &end_n);
             line.append("_BND");
             if (result->end - record->pos >= 100000) {
                 line.append("LONG");
             }
         }
-//        if (result->bnd && check_contains(dup_region, record->pos, *ends) && (c1 != 0 or c2 != 0)) {
+//        if (!IBND && result->bnd && check_contains(dup_region, record->pos, *ends) && (c1 != 0 or c2 != 0)) {
 //            if (*ends - record->pos >= 100000) {
 //                line.append("\ttoo long");
 //            }
@@ -385,7 +385,7 @@ void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>
 //    auto child_ps = std::to_string(ps_nos[0]);
 
 
-//    if (result->bnd) {
+//    if (!IBND && result->bnd) {
 
 //        auto m1 = result->calls[2]->allele1;
 //        auto m2 = result->calls[2]->allele2;
@@ -428,7 +428,7 @@ void VCFWriter::write_nxt_record_debug(bcf1_t *record, std::shared_ptr<VcfRecord
 
     if (true) {
 
-//    if (result->bnd) {
+//    if (!IBND && result->bnd) {
         auto c1 = result->calls[0]->allele1;
         auto c2 = result->calls[0]->allele2;
         auto f1 = result->calls[1]->allele1;
@@ -468,11 +468,11 @@ void VCFWriter::write_nxt_record_debug(bcf1_t *record, std::shared_ptr<VcfRecord
                 this->debugFile << line << "\n";
             int *ends = nullptr;
             int end_n;
-            if (result->bnd) {
+            if (!IBND && result->bnd) {
 //                bcf_get_info_int32(header, record, "END", &ends, &end_n);
 //            *ends = result->end;
             }
-            if (result->bnd  && f1 == 0 && f2 == 0 && m1 == 0 &&
+            if (!IBND && result->bnd  && f1 == 0 && f2 == 0 && m1 == 0 &&
                 m2 == 0 && (c1 != 0 or c2 != 0)) {
                 if (check_contains(dup_region, record->pos, result->end))
                     line.append("_NAHR");
@@ -489,7 +489,7 @@ void VCFWriter::write_nxt_record_debug(bcf1_t *record, std::shared_ptr<VcfRecord
                 }
                 this->debugFile << line << "\n";
             }
-            if (result->bnd) free(ends);
+            if (!IBND && result->bnd) free(ends);
         }
     }
 //    this->debugFile<<line<<"\n";
@@ -554,7 +554,7 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                 s_idx = (*frvcf.sample_to_idx)[it[0]];
                 if(it[1] != EMPTY_ID && it[2] != EMPTY_ID) {
                     std::string line;
-                    if (result->bnd && result->calls[1]->allele1 <= 0 && result->calls[1]->allele2 <= 0
+                    if (!IBND && result->bnd && result->calls[1]->allele1 <= 0 && result->calls[1]->allele2 <= 0
                         && result->calls[2]->allele1 <= 0 && result->calls[2]->allele2 <= 0) {
                         if (result->calls[0]->isPhased() && result->calls[0]->allele1 == 1) {
                             int *ends = nullptr;

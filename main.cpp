@@ -17,6 +17,7 @@ bool IS_MALE;
 bool IS_DEBUG;
 int BND_RANGE;
 int MIN_SNP_RECOM;
+bool IBND;
 
 //TODO this is a tmp
 int main(int argc, char *argv[]) {
@@ -28,6 +29,7 @@ int main(int argc, char *argv[]) {
             ("t1", "Block Merge Support site count if no conflict", cxxopts::value<float>()->default_value("0"))
             ("t2", "Block Merge Support site count if has conflict", cxxopts::value<float>()->default_value("2"))
             ("oc", "Only child with be phased", cxxopts::value<bool>()->default_value("false"))
+            ("ibnd", "ignore bnd", cxxopts::value<bool>()->default_value("false"))
             ("bnd_range", "Phasing bnd position range", cxxopts::value<int>()->default_value("100"))
             ("verbose", "Verbose output", cxxopts::value<bool>()->default_value("false"))
             ("xy", "Whether phasing sexual chromosome", cxxopts::value<bool>()->default_value("false"))
@@ -59,6 +61,9 @@ int main(int argc, char *argv[]) {
     }
     if (result.count("debug")) {
         IS_DEBUG = result["debug"].as<bool>();
+    }
+    if (result.count("ibnd")) {
+        IBND = result["ibnd"].as<bool>();
     }
     std::string homoOut;
     if (result.count("homo_recom")) {

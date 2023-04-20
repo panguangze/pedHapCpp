@@ -16,6 +16,7 @@
 #include "util.h"
 extern bool IS_DEBUG;
 extern int MIN_SNP_RECOM;
+extern bool IBND;
 enum format_n {
     GT, PS
 };
@@ -124,7 +125,7 @@ public:
         nps = bcf_get_format_int32(header, buffer, "PS", &ps_arr, &nps_arr);
         npl = bcf_get_format_int32(header, buffer, "PL", &pl_arr, &npl_arr);
         result->pos = buffer->pos;
-        if (result->bnd) {
+        if (!IBND && result->bnd) {
             bcf_get_info_int32(header, buffer, "END", &ends, &end_n);
             if (ends == nullptr) {
                 bcf_get_info_int32(header, buffer, "END", &svlen, &svlen_n);
