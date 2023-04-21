@@ -241,8 +241,8 @@ void Phaser::phasing_by_chrom() const
             }
         }
         i++;
+        chromoPhaser->correct_conflict(s_idx);
     }
-//    chromoPhaser->correct_conflict(s_idx);
 
 
     i = 0;
