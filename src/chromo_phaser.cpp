@@ -208,12 +208,26 @@ void Phaser::phasing_by_chrom() const
             free(hete_reads);
             free(home_reads);
         }
+        chromoPhaser->correct_conflict(s_idx);
         if(ONLY_CHILD) return;
         for(auto it: get_down_to_up()) {
             s_idx = (*get_sample_to_idx())[it[0]];
 //            chromoPhaser->check_mendel(s_idx, f_idx, m_idx);
-            if(it[1] != EMPTY_ID) f_idx = (*get_sample_to_idx())[it[1]];
-            if(it[2] != EMPTY_ID) m_idx = (*get_sample_to_idx())[it[2]];
+            if(it[1] != EMPTY_ID) {
+                if (s_i->find(it[1]) == s_i->end()){
+                    f_idx = -1;
+                } else {
+                    f_idx = (*s_i)[it[1]];
+                }
+            }
+            f_idx = (*get_sample_to_idx())[it[1]];
+            if(it[2] != EMPTY_ID) {
+                if (s_i->find(it[2]) == s_i->end()){
+                    m_idx = -1;
+                } else {
+                    m_idx = (*s_i)[it[2]];
+                }
+            }
             is_child_male = it[3] == "male";
 //        if(s_idx != -1 && m_idx != -1 && f_idx != -1)
 //            chromoPhaser->check_mendel(s_idx, f_idx, m_idx);
@@ -241,7 +255,6 @@ void Phaser::phasing_by_chrom() const
             }
         }
         i++;
-        chromoPhaser->correct_conflict(s_idx);
     }
 
 
