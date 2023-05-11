@@ -31,6 +31,7 @@ public:
     ChromoPhaser(const uint &chr_id, const std::string &chr_name, int nsmp);
     ~ChromoPhaser() = default;
     void correct_conflict(int idx);
+    void correct_unphase(int idx, int fidx, int midx);
     void add_result(const std::shared_ptr<VcfRecord>& result);
     void phase_with_hete(int idx1, int idx2, int side, InfoSet* infoSet);
     void phase_with_homo(int idx1, int idx2, int side, InfoSet* infoSet);

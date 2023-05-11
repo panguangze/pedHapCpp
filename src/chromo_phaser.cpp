@@ -75,12 +75,13 @@ void Phaser::phasing()
     uint prev_count = 0;
     for (uint rid = 0; rid < frvcf->contigs_count; rid++)
     {
+        auto tmpp = std::find(this->contigs.begin(), this->contigs.end(), frvcf->contigs[rid]) == this->contigs.end();
         if (!this->contigs.empty() && std::find(this->contigs.begin(), this->contigs.end(), frvcf->contigs[rid]) == this->contigs.end()) {
             if (frvcf->jump_to_contig(rid) != 0)
                 break;
-            auto *chromo_phaser = new ChromoPhaser(rid, frvcf->contigs[rid], nsmp);
-            load_contig_blocks(chromo_phaser);
-            prev_count = prev_count + chromo_phaser->variant_count;
+//            auto *chromo_phaser = new ChromoPhaser(rid, frvcf->contigs[rid], nsmp);
+//            load_contig_blocks(chromo_phaser);
+//            prev_count = prev_count + chromo_phaser->variant_count;
             continue;
         }
 //            continue;
@@ -95,6 +96,7 @@ void Phaser::phasing()
         std::string mess2 = "phasing haplotype for " + std::string(frvcf->contigs[rid]);
         logging(std::clog, mess2);
         phasing_by_chrom();
+
         fwvcf->write_nxt_contigs(frvcf->contigs[rid].data(), chromo_phaser, *frvcf, prev_count);
         prev_count = prev_count + chromo_phaser->variant_count;
         delete chromo_phaser;
@@ -195,11 +197,12 @@ void Phaser::phasing_by_chrom() const
 //                if(s_idx != -1 && m_idx != -1 && f_idx != -1)
                 chromoPhaser->check_mendel(s_idx, f_idx, m_idx);
 //            chromoPhaser->check_mendel(s_idx, f_idx, m_idx);
-                chromoPhaser->phase_with_hete(s_idx, m_idx, 1,hete_reads);
+
+                chromoPhaser->phase_with_hete(s_idx, m_idx, 0,hete_reads);
                 chromoPhaser->phase_with_hete(s_idx, f_idx, 0,hete_reads);
                 chromoPhaser->extend(s_idx,hete_reads,0, 0);
-                chromoPhaser->phase_with_homo(s_idx, f_idx,0, home_reads);
 
+                chromoPhaser->phase_with_homo(s_idx, f_idx,0, home_reads);
                 chromoPhaser->phase_with_homo(s_idx, m_idx,1, home_reads);
                 chromoPhaser->extend(s_idx,home_reads,0,1);
             }
@@ -377,4 +380,5 @@ void Phaser::phasing_by_chrom() const
 //            chromoPhaser->phase_with_homo(m_idx, s_idx,0);
 //        }
 //    }
+//chromoPhaser->correct_unphase(s_idx,f_idx,m_idx);
 }

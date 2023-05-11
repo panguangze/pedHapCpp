@@ -246,28 +246,28 @@ void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>
     if(record->pos == 196110562) {
         int tmp = 0;
     }
-//    TODO: if consider  && ccall->block_id != 1
-    if (!ccall->isHomo() && ccall->isPhased()) {
-        *conflictFlag += 1;
-        return;
-    }
-    if (ccall->un_sure || pcall->un_sure) {
-//        if (*conflictFlag == 1) {
-//            *conflictFlag = 2;
-//        }
-        return;
-    }
-    if (!ccall->isPhased() && !ccall->isHomo()) {
-//        *conflictFlag = 3;
-        return;
-    }
+////    TODO: if consider  && ccall->block_id != 1
+//    if (!ccall->isHomo() && ccall->isPhased()) {
+//        *conflictFlag += 1;
+//        return;
+//    }
+//    if (ccall->un_sure || pcall->un_sure) {
+////        if (*conflictFlag == 1) {
+////            *conflictFlag = 2;
+////        }
+//        return;
+//    }
+//    if (!ccall->isPhased() && !ccall->isHomo()) {
+////        *conflictFlag = 3;
+//        return;
+//    }
 //    if ((!ccall->isPhased() && !ccall->isHomo()) || (!ccall->isHomo() && ccall->isPhased() && ccall->block_id != 1)) {
 //        *conflictFlag = 0;
 //        return;
 //    }
-    if (pcall->isHomo() || pcall->block_id != 1) {
-        return;
-    }
+//    if (pcall->isHomo() || pcall->block_id != 1) {
+//        return;
+//    }
 //    auto pcall = result->calls[pidx];
     auto c1 = ccall->allele1;
     auto c2 = ccall->allele2;
@@ -294,7 +294,7 @@ void VCFWriter::write_recom_duo(bcf1_t *record, const std::shared_ptr<VcfRecord>
 //    if (*conflictFlag == 3) {
 //        line.append("_un_sure_GT");
 //    }
-    if (c1 != p1 && c1 == p2) {
+    if (c1 != p2 && c1 == p1) {
         if (*conflictFlag >=2 ) {
             recom_content.append("\n");
         }
@@ -666,10 +666,10 @@ void VCFWriter::write_nxt_contigs(const char *contig, ChromoPhaser *chromo_phase
                     f_idx = (*frvcf.sample_to_idx)[it[1]];
                     write_recom_duo(record,result,s_idx,f_idx,0,fConflictFlags+trio_idx, fConflictCounts+trio_idx, sample_name2recom[it[1]],dup_region, simple_repeat_region, prev_count);
                 }
-                if (it[2] != EMPTY_ID) {
-                    m_idx = (*frvcf.sample_to_idx)[it[2]];
-                    write_recom_duo(record,result,s_idx,m_idx,1,mConflictFlags+trio_idx, mConflictCounts+trio_idx, sample_name2recom[it[2]],dup_region,simple_repeat_region, prev_count);
-                }
+//                if (it[2] != EMPTY_ID) {
+//                    m_idx = (*frvcf.sample_to_idx)[it[2]];
+//                    write_recom_duo(record,result,s_idx,m_idx,1,mConflictFlags+trio_idx, mConflictCounts+trio_idx, sample_name2recom[it[2]],dup_region,simple_repeat_region, prev_count);
+//                }
 //                write_nxt_record_debug(record, result, ps_nos, conflictFlag, dup_region);
                 trio_idx++;
             }
